@@ -18,8 +18,8 @@
         </table>
 
         <div class="columns is-centered">
-            <span v-if="numPages > 1" class="column is-1">
-                <button class="button" v-on:click="previousPage">&lt;&lt;</button>
+            <span class="column is-1">
+                <button class="button" v-bind:disabled="page <= 0" v-on:click="previousPage">&lt;&lt;</button>
             </span>
 
             <span class="column is-1" v-for="p in pages">
@@ -27,8 +27,8 @@
                 <button class="button" v-else v-on:click="setPage(p)">{{ p + 1 }}</button>
             </span>
 
-            <span v-if="page < numPages" class="column is-1">
-                <button class="button" v-on:click="nextPage">&gt;&gt;</button>
+            <span class="column is-1">
+                <button class="button" v-bind:disabled="page + 1 >= pageCount" v-on:click="nextPage">&gt;&gt;</button>
             </span>
         </div>
 
