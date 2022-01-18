@@ -41,7 +41,7 @@ export default {
     },
     computed: {
         short_url: function() {
-            return "http://localhost:8000/" + this.shrl.alias;
+            return "/" + this.shrl.alias;
         },
     },
     methods: {
