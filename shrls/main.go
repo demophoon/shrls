@@ -75,7 +75,7 @@ func main() {
 	admin_mux := goji.SubMux()
 	api_mux := goji.SubMux()
 
-	auth_middleware := httpauth.SimpleBasicAuth("username", "password")
+	auth_middleware := httpauth.SimpleBasicAuth(Settings.AdminUsername, Settings.AdminPassword)
 
 	api_mux.Use(auth_middleware)
 
