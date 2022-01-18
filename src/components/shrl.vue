@@ -32,6 +32,10 @@
             </span>
         </td>
 
+        <td>
+            <vue-tags-input v-bind:tags="tags" v-model="currentTag" v-on:tags-changed="updateTags"/>
+        </td>
+
         <shrl-edit
             v-on:save="save"
             v-on:remove="remove"
@@ -46,11 +50,16 @@
 <script>
 import { bus, ShrlType } from "../index.js"
 import copy from "copy-to-clipboard"
+import VueTagsInput from '@johmun/vue-tags-input'
 
 export default {
+    components: {
+        VueTagsInput,
+    },
     props: ["shrl"],
     data: function() {
         return {
+            currentTag: '',
             editing: false,
             ShrlType,
         }
@@ -69,6 +78,14 @@ export default {
             }
             return ""
         },
+        tags: function() {
+            return this.shrl.tags.map((tag) => {
+                return {
+                    text: tag,
+                    classes: "tag is-info is-light is-rounded"
+                }
+            })
+        }
     },
     methods: {
         save: function() {
@@ -98,7 +115,16 @@ export default {
         },
         copyUrl: function() {
             copy(document.location.protocol + "//" + document.location.host + "/" + this.shrl.alias)
-        }
+        },
+        copyQR: function() {
+            copy(document.location.protocol + "//" + document.location.host + "/" + this.shrl.alias + ".qr")
+        },
+        updateTags: function(tags) {
+            this.shrl.tags = tags.map((tag) => {
+                return tag.text
+            })
+            this.save()
+        },
     }
 }
 </script>

@@ -98,7 +98,10 @@ const app = new Vue({
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
-                    app.shrls = data.shrls;
+                    app.shrls = data.shrls.map((shrl) => {
+                        shrl.tags = shrl.tags || []
+                        return shrl
+                    });
                     app.count = data.count;
                 })
                 .catch(err => { throw err });
