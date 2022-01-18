@@ -90,21 +90,7 @@ export default {
             })
         },
         edit: function() {
-            let self = this
-            switch (this.shrl.type) {
-                case ShrlType.textSnippet:
-                    fetch("/api/snippet/" + this.shrl.id).then(d => {
-                        return d.json()
-                    }).then((pl) => {
-                        self.shrl.snippet_title = pl.title
-                        self.shrl.snippet = pl.body
-                        self.editing = true
-                    })
-                    break;
-                default:
-                    this.editing = true
-                    break;
-            }
+            this.editing = true
         },
         closeEdit: function() {
             this.editing = false
