@@ -39,7 +39,7 @@
             v-if="edit"
             v-bind:shrl="shrl"
             v-bind:editing="editing"
-            v-bind:params="params"></shrl-edit>
+        ></shrl-edit>
     </tr>
 </template>
 
@@ -52,7 +52,6 @@ export default {
     data: function() {
         return {
             editing: false,
-            params: {},
             ShrlType,
         }
     },
@@ -74,19 +73,12 @@ export default {
     methods: {
         save: function() {
             let el = this;
-            switch (this.shrl.type) {
-                case ShrlType.shortenedURL:
-                    fetch("/api/shrl/" + el.shrl.id, {
-                        method: "PUT",
-                        body: JSON.stringify(el.shrl),
-                    }).then(() => {
-                        el.closeEdit();
-                    })
-                    break;
-                default:
-                    el.closeEdit();
-                    break;
-            }
+            fetch("/api/shrl/" + el.shrl.id, {
+                method: "PUT",
+                body: JSON.stringify(el.shrl),
+            }).then(() => {
+                el.closeEdit();
+            })
         },
         remove: function() {
             let el = this;
@@ -104,8 +96,8 @@ export default {
                     fetch("/api/snippet/" + this.shrl.id).then(d => {
                         return d.json()
                     }).then((pl) => {
-                        self.params.snippetTitle = pl.title
-                        self.params.snippet = pl.body
+                        self.shrl.snippet_title = pl.title
+                        self.shrl.snippet = pl.body
                         self.editing = true
                     })
                     break;

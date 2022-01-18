@@ -32,8 +32,8 @@ type URL struct {
 	Alias          string             `bson:"alias" json:"alias"`
 	Location       string             `bson:"location" json:"location"`
 	UploadLocation string             `bson:"upload_location" json:"-"`
-	SnippetTitle   string             `bson:"snippet_title" json:"-"`
-	Snippet        string             `bson:"snippet" json:"-"`
+	SnippetTitle   string             `bson:"snippet_title" json:"snippet_title,omitempty"`
+	Snippet        string             `bson:"snippet" json:"snippet,omitempty"`
 	CreatedAt      time.Time          `bson:"created_at" json:"created_at"`
 	Views          int                `bson:"views" json:"views"`
 	Tags           []string           `bson:"tags" json:"tags"`
@@ -124,12 +124,8 @@ func urlByID(url_id string) (*URL, error) {
 }
 
 func updateUrl(url *URL) error {
-	_, err := collection.UpdateOne(ctx, bson.M{"_id": url.ID}, bson.D{
-		{"$set", bson.D{
-			{"alias", url.Alias},
-			{"location", url.Location},
-			{"tags", url.Tags},
-		}},
+	_, err := collection.UpdateByID(ctx, url.ID, bson.D{
+		{"$set", url},
 	})
 	return err
 }

@@ -33,14 +33,14 @@
                 <div class="field" v-if="shrl.type == 2">
                     <label class="label">Snippet Title</label>
                     <div class="control">
-                        <input type="text" class="input" placeholder="Snippet Title" v-model="snippetTitle"/>
+                        <input type="text" class="input" placeholder="Snippet Title" v-model="shrl.snippet_title"/>
                     </div>
                 </div>
 
                 <div class="field" v-if="shrl.type == 2">
                     <label class="label">Snippet</label>
                     <div class="control">
-                        <textarea v-model="snippet" class="textarea" rows="6" placeholder="Snippet of text"></textarea>
+                        <textarea v-model="shrl.snippet" class="textarea" rows="6" placeholder="Snippet of text"></textarea>
                     </div>
                 </div>
 
@@ -54,21 +54,7 @@
 <script>
 import { ShrlEnum } from "../index.js"
 export default {
-    props: ["shrl", "params", "editing"],
-    data: function() {
-        return {
-            snippetTitle: "",
-            snippet: "",
-        }
-    },
-    watch: {
-        editing: function() {
-            if (this.editing) {
-                this.snippetTitle = this.params.snippetTitle
-                this.snippet = this.params.snippet
-            }
-        }
-    },
+    props: ["shrl", "editing"],
     computed: {
         type: function() {
             return ShrlEnum[this.shrl.type];
