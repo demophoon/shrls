@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"io"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -24,7 +26,8 @@ type URLListResponse struct {
 
 func shrlFromRequest(r *http.Request) *URL {
 	shrl := pat.Param(r, "shrl")
-	return getShrl(shrl)
+	alias := strings.Split(shrl, ".")[0]
+	return getShrl(alias)
 }
 
 func getShrl(shrl string) *URL {
@@ -40,9 +43,29 @@ func getShrl(shrl string) *URL {
 	return urls[rand.Intn(len(urls))]
 }
 
-func urlRedirect(w http.ResponseWriter, r *http.Request) {
+func resolveShrl(w http.ResponseWriter, r *http.Request) {
 	shrl := shrlFromRequest(r)
-	http.Redirect(w, r, shrl.Location, 301)
+	go shrl.IncrementViews()
+	switch shrl.Type {
+	case ShortenedUrl:
+		http.Redirect(w, r, shrl.Location, http.StatusPermanentRedirect)
+
+	case UploadedFile:
+		writeFile(shrl, w)
+
+	case TextSnippet:
+		w.Write([]byte(shrl.Snippet))
+	}
+}
+
+func writeFile(shrl *URL, w http.ResponseWriter) {
+	read, err := os.Open(shrl.UploadLocation)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("err: %v\n\n%v", err, shrl), http.StatusNotFound)
+	}
+	defer read.Close()
+
+	io.Copy(w, read)
 }
 
 func urlPrintAll(w http.ResponseWriter, r *http.Request) {
@@ -68,8 +91,6 @@ func urlPrintAll(w http.ResponseWriter, r *http.Request) {
 		prms.Limit = 25
 	}
 
-	log.Printf("Query: %v", prms)
-
 	urls, count, err := paginatedUrls(prms)
 
 	if err != nil {
@@ -79,11 +100,9 @@ func urlPrintAll(w http.ResponseWriter, r *http.Request) {
 		Count: count,
 		URLs:  urls,
 	}
-	output, err := json.Marshal(&pl)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Unable to resolve data: %s", err), 500)
-	}
-	w.Write(output)
+	//output, err := json.Marshal(pl)
+	encoder := json.NewEncoder(w)
+	encoder.Encode(pl)
 }
 
 func urlPrintInfo(w http.ResponseWriter, r *http.Request) {
@@ -146,14 +165,19 @@ func urlModify(w http.ResponseWriter, r *http.Request) {
 func urlDelete(w http.ResponseWriter, r *http.Request) {
 	shrl_id := pat.Param(r, "shrl_id")
 
-	err := deleteUrl(shrl_id)
+	response := URLUpdateResponse{Status: "Success"}
+	encoder := json.NewEncoder(w)
 
-	var response URLUpdateResponse
+	url, err := urlByID(shrl_id)
 	if err != nil {
 		response = URLUpdateResponse{Status: "Error"}
-	} else {
-		response = URLUpdateResponse{Status: "Success"}
+		encoder.Encode(response)
+		return
 	}
-	encoder := json.NewEncoder(w)
+
+	err = url.Delete()
+	if err != nil {
+		response = URLUpdateResponse{Status: "Error"}
+	}
 	encoder.Encode(response)
 }

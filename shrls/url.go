@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/thanhpk/randstr"
@@ -11,19 +12,47 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type URL struct {
-	ID        primitive.ObjectID `bson:"_id",json:"id"`
-	Alias     string             `bson:"alias",json:"alias"`
-	Location  string             `bson:"location",json:"location"`
-	CreatedAt time.Time          `bson:"created_at",json:"created_at"`
-	Views     int                `bson:"views",json:"views"`
-	Tags      []*Tag             `bson:"tags",json:"tags"`
+type ShrlType int
+
+const (
+	ShortenedUrl ShrlType = iota
+	UploadedFile
+	TextSnippet
+)
+
+func (t ShrlType) String() string {
+	return []string{"ShortUrl", "UploadedFile", "TextSnippet"}[t]
 }
 
-type Tag struct {
-	ID        primitive.ObjectID `bson:"_id",json:"id"`
-	CreatedAt time.Time          `bson:"created_at",json:"created_at"`
-	Name      string             `bson:"name",json:"name"`
+type URL struct {
+	ID             primitive.ObjectID `bson:"_id" json:"id"`
+	Alias          string             `bson:"alias" json:"alias"`
+	Location       string             `bson:"location" json:"location"`
+	UploadLocation string             `bson:"upload_location" json:"-"`
+	SnippetTitle   string             `bson:"snippet_title" json:"-"`
+	Snippet        string             `bson:"snippet" json:"-"`
+	CreatedAt      time.Time          `bson:"created_at" json:"created_at"`
+	Views          int                `bson:"views" json:"views"`
+	Tags           []string           `bson:"tags" json:"tags"`
+	Type           ShrlType           `bson:"type" json:"type"`
+}
+
+func (u URL) Delete() error {
+	switch u.Type {
+	case UploadedFile:
+		os.Remove(u.UploadLocation)
+	}
+
+	_, err := collection.DeleteOne(ctx, bson.M{"_id": u.ID})
+	return err
+}
+
+func (u URL) IncrementViews() error {
+	_, err := collection.UpdateByID(ctx, u.ID, bson.D{
+		{"$inc", bson.D{{"views", 1}}},
+	})
+	return err
+
 }
 
 type URLs struct {
@@ -54,6 +83,7 @@ func NewURL() URL {
 		ID:        primitive.NewObjectID(),
 		CreatedAt: time.Now(),
 		Alias:     NewAlias(),
+		Type:      ShortenedUrl,
 	}
 	return url
 }
@@ -88,6 +118,13 @@ func deleteUrl(url_id string) error {
 	}
 	_, err = collection.DeleteOne(ctx, bson.M{"_id": id})
 	return err
+}
+
+func ShrlFromString(url string) URL {
+	shrl := NewURL()
+	shrl.Location = url
+	createUrl(&shrl)
+	return shrl
 }
 
 func createUrl(url *URL) error {

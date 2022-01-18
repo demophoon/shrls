@@ -8,6 +8,12 @@
 
         <div class="navbar-end">
             <div class="navbar-item">
+                <shrl-search />
+            </div>
+        </div>
+
+        <div class="navbar-end">
+            <div class="navbar-item">
                 <div class="buttons">
                     <a href="#" class="button is-primary">
                         <strong>Log In</strong>

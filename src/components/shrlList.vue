@@ -1,9 +1,5 @@
 <template>
     <div>
-        <div class="columns is-centered">
-            <input class="input" placeholder="Search" v-model="search" v-on:keyup="updateSearch">
-        </div>
-
         <table class="table is-fullwidth is-striped is-narrow">
             <thead>
                 <tr>
@@ -41,13 +37,12 @@ import { bus } from "../index.js"
 export default {
     data: function() {
         return {
-            search: "",
             page: 0,
         }
     },
     computed: {
         pages: function() {
-            let numPages = 4
+            let numPages = 2
             let ps = []
             let startPage = Math.max(0, this.page - numPages)
             let endPage = Math.min(this.pageCount, this.page + numPages)
@@ -67,7 +62,6 @@ export default {
     methods: {
         searchShrls: function() {
             bus.$emit("setValue", {
-                search: this.search,
                 page: this.page,
             })
         },

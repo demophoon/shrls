@@ -5,14 +5,16 @@
             <button v-on:click="copyUrl" class="button is-small is-info">Copy</button>
         </td>
         <td>
-            0
+            {{ shrl.views }}
         </td>
         <td>
-            <a v-bind:href="short_url">{{ shrl.Alias }}</a>
-            <br>
-            <small>
-                <a v-bind:href="shrl.Location">{{ shrl.Location.slice(0, 50) }}</a>
-            </small>
+            <a v-bind:href="short_url">{{ shrl.alias }}</a>
+            <span v-if="shrl.type == 0">
+                <br>
+                <small>
+                    <a v-bind:href="shrl.location">{{ shrl.location.slice(0, 50) }}</a>
+                </small>
+            </span>
         </td>
         <shrl-edit
             v-on:save="save"
@@ -20,7 +22,8 @@
             v-on:close="closeEdit"
             v-if="edit"
             v-bind:shrl="shrl"
-            v-bind:editing="editing"></shrl-edit>
+            v-bind:editing="editing"
+            v-bind:params="params"></shrl-edit>
     </tr>
 </template>
 
@@ -33,42 +36,53 @@ export default {
     data: function() {
         return {
             editing: false,
+            params: {},
         }
     },
     computed: {
         short_url: function() {
-            return "http://localhost:8000/" + this.shrl.Alias;
+            return "http://localhost:8000/" + this.shrl.alias;
         },
     },
     methods: {
         save: function() {
             let el = this;
-            fetch("/api/shrl/" + el.shrl.ID, {
+            fetch("/api/shrl/" + el.shrl.id, {
                 method: "PUT",
                 body: JSON.stringify(el.shrl),
             }).then(() => {
-                bus.$emit("load-shrls")
                 el.closeEdit();
             })
         },
         remove: function() {
             let el = this;
-            fetch("/api/shrl/" + this.shrl.ID, {
+            fetch("/api/shrl/" + this.shrl.id, {
                 method: "DELETE",
                 body: JSON.stringify(el.shrl),
             }).then(() => {
-                bus.$emit("load-shrls")
                 el.closeEdit();
             })
         },
         edit: function() {
-            this.editing = true
+            let self = this
+            if (this.shrl.type == 2) {
+                fetch("/api/snippet/" + this.shrl.id).then(d => {
+                    return d.json()
+                }).then((pl) => {
+                    self.params.snippetTitle = pl.title
+                    self.params.snippet = pl.body
+                    self.editing = true
+                })
+            } else {
+                this.editing = true
+            }
         },
         closeEdit: function() {
             this.editing = false
+            bus.$emit("load-shrls")
         },
         copyUrl: function() {
-            copy(document.location.protocol + "//" + document.location.host + "/" + this.shrl.Alias)
+            copy(document.location.protocol + "//" + document.location.host + "/" + this.shrl.alias)
         }
     }
 }

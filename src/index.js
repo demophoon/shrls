@@ -1,11 +1,10 @@
 import Vue from "vue"
 import ShrlList from "./components/shrlList.vue"
 import ShrlItem from "./components/shrl.vue"
-import ShrlNew from "./components/shrlNew.vue"
 import ShrlEdit from "./components/shrlEdit.vue"
 import ShrlNav from "./components/shrlNav.vue"
-import FileUpload from "./components/FileUpload.vue"
-import ShrlSnippet from "./components/ShrlSnippet.vue"
+import ShrlOmnibar from "./components/omnibar.vue"
+import ShrlSearch from "./components/shrlSearch.vue"
 
 import 'bulma/css/bulma.css'
 import '@fortawesome/fontawesome-free/css/all.css'
@@ -14,17 +13,27 @@ var _ = require('lodash');
 
 Vue.component("shrl-list", ShrlList)
 Vue.component("shrl-item", ShrlItem)
-Vue.component("shrl-new", ShrlNew)
 Vue.component("shrl-edit", ShrlEdit)
 Vue.component("shrl-nav", ShrlNav)
-Vue.component("file-upload", FileUpload)
-Vue.component("shrl-snippet", ShrlSnippet)
+Vue.component("shrl-omnibar", ShrlOmnibar)
+Vue.component("shrl-search", ShrlSearch)
 
 const container = document.createElement("div")
 
 document.body.append(container)
 
 const _bus = new Vue({});
+
+export const ShrlEnum = [
+    "Shortened URL",
+    "Uploaded File",
+    "Text Snippet",
+]
+export const ShrlType = {
+    shortenedURL: 0,
+    uploadedFile: 1,
+    textSnippet: 2,
+}
 
 const app = new Vue({
     el: container,
@@ -42,18 +51,8 @@ const app = new Vue({
     template: `
     <div class="container">
         <shrl-nav></shrl-nav>
-        <div class="box">
-            <div class="columns">
-                <div class="column is-two-thirds">
-                    <shrl-new></shrl-new>
 
-                    <shrl-snippet></shrl-snippet>
-                </div>
-                <div class="column is-vcentered">
-                    <file-upload></file-upload>
-                </div>
-            </div>
-        </div>
+        <shrl-omnibar />
 
         <div class="columns">
             <div class="column">
@@ -83,8 +82,8 @@ const app = new Vue({
                 this.searchOpts.page != e.page
             )
 
-            this.searchOpts.search = e.search;
-            this.searchOpts.page = e.page
+            if (e.search !== undefined) { this.searchOpts.search = e.search }
+            if (e.page !== undefined) { this.searchOpts.page = e.page }
 
             if (fetch) { this.fetchShrls() }
         },
