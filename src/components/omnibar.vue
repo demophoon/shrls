@@ -129,17 +129,18 @@ export default {
         },
         // API posts
         createShrl: function(url) {
+            this.resetOmnibar()
             fetch("/api/shrl", {
                 method: "POST",
                 body: JSON.stringify({
                     location: url
                 })
             }).then(() => {
-                this.resetOmnibar()
                 bus.$emit("load-shrls")
             })
         },
         createSnippet: function(title, paste) {
+            this.resetOmnibar()
             fetch("/api/snippet", {
                 method: "POST",
                 body: JSON.stringify({
@@ -147,18 +148,17 @@ export default {
                     body: paste,
                 }),
             }).then(() => {
-                this.resetOmnibar()
                 bus.$emit("load-shrls")
             })
         },
         createUpload: function(file) {
+            this.resetOmnibar()
             let fd = new FormData()
             fd.append("file", file)
             fetch("/api/upload", {
                 method: "POST",
                 body: fd,
             }).then(() => {
-                this.resetOmnibar()
                 bus.$emit("load-shrls")
             })
         },
