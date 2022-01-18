@@ -15,6 +15,7 @@ export default {
         updateSearch() {
             bus.$emit("setValue", {
                 search: this.search,
+                page: 0,
             })
         },
     }

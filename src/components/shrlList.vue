@@ -1,11 +1,11 @@
 <template>
     <div>
-        <table class="table is-fullwidth is-striped is-narrow">
+        <table class="table is-fullwidth is-striped is-narrow is-hoverable">
             <thead>
                 <tr>
-                    <td>Actions</td>
-                    <td>Views</td>
-                    <td>URL</td>
+                    <th class="is-1">Actions</th>
+                    <th class="is-3">Alias</th>
+                    <th>Location</th>
                 </tr>
             </thead>
             <tbody v-for="shrl in shrls">
@@ -13,20 +13,26 @@
             </tbody>
         </table>
 
-        <div class="columns is-centered">
-            <span class="column is-1">
-                <button class="button" v-bind:disabled="page <= 0" v-on:click="previousPage">&lt;&lt;</button>
-            </span>
+        <nav class="pagination">
+            <a v-on:click="previousPage" v-bind:disabled="page <= 0" class="pagination-previous">&lt;&lt;</a>
+            <a v-on:click="nextPage" v-bind:disabled="page + 1 >= pageCount" class="pagination-next">&gt;&gt;</a>
+            <ul class="pagination-list">
+                <li v-if="page > numPages"><a v-on:click="setPage(0)" class="pagination-link"> 1 </a></li>
+                <li v-if="page > numPages"><span class="pagination-ellipsis">&hellip;</span></li>
 
-            <span class="column is-1" v-for="p in pages">
-                <button class="button is-dark" v-if="page == p">{{ p + 1 }}</button>
-                <button class="button" v-else v-on:click="setPage(p)">{{ p + 1 }}</button>
-            </span>
+                <li v-for="p in pages">
+                    <a v-on:click="setPage(p)" v-if="page == p" class="pagination-link is-current">
+                        {{ p + 1 }}
+                    </a>
+                    <a v-on:click="setPage(p)" v-else class="pagination-link">
+                        {{ p + 1 }}
+                    </a>
+                </li>
 
-            <span class="column is-1">
-                <button class="button" v-bind:disabled="page + 1 >= pageCount" v-on:click="nextPage">&gt;&gt;</button>
-            </span>
-        </div>
+                <li v-if="page < pageCount - numPages - 1"><span class="pagination-ellipsis">&hellip;</span></li>
+                <li v-if="page < pageCount - numPages - 1"><a v-on:click="setPage(pageCount - 1)" class="pagination-link"> {{ pageCount }} </a></li>
+            </ul>
+        </nav>
 
     </div>
 </template>
@@ -37,19 +43,21 @@ import { bus } from "../index.js"
 export default {
     data: function() {
         return {
-            page: 0,
+            numPages: 3,
         }
     },
     computed: {
+        page: function() {
+            return this.searchOpts.page
+        },
         pages: function() {
-            let numPages = 2
             let ps = []
-            let startPage = Math.max(0, this.page - numPages)
-            let endPage = Math.min(this.pageCount, this.page + numPages)
-            if (this.page < numPages) {
-                endPage += numPages - this.page
+            let startPage = Math.max(0, this.page - this.numPages)
+            let endPage = Math.min(this.pageCount, this.page + this.numPages)
+            if (this.page < this.numPages) {
+                endPage += this.numPages - this.page
             }
-            for (let p=startPage; p<Math.min(this.pageCount, endPage); p++) {
+            for (let p=startPage; p<Math.min(this.pageCount, endPage + 1); p++) {
                 ps.push(p)
             }
             return ps.splice(0, (endPage - startPage) + 1)
@@ -60,26 +68,16 @@ export default {
     },
     props: ["shrls", "count", "searchOpts"],
     methods: {
-        searchShrls: function() {
-            bus.$emit("setValue", {
-                page: this.page,
-            })
-        },
-        updateSearch: function() {
-            this.page = 0;
-            this.searchShrls();
-        },
         nextPage: function() {
-            this.page = this.page + 1;
-            this.searchShrls();
+            this.setPage(this.page + 1)
         },
         previousPage: function() {
-            this.page = Math.max(0, this.page - 1);
-            this.searchShrls();
+            this.setPage(Math.max(0, this.page - 1))
         },
-        setPage: function(e) {
-            this.page = e
-            this.searchShrls();
+        setPage: function(p) {
+            bus.$emit("setValue", {
+                page: p,
+            })
         },
     }
 }

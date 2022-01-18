@@ -5,7 +5,7 @@
                 <label class="label has-text-light">Snippet Title</label>
             </div>
 
-            <div class="field has-addons">
+            <div class="field has-addons sticky">
 
                 <div class="control is-expanded">
                     <input v-model="snippetTitle" class="input" type="text" placeholder="Untitled Snippet"/>
@@ -13,7 +13,7 @@
 
                 <div class="control">
                     <a class="button is-success"
-                        v-on:click="parseOmnibar"
+                        v-on:click="uploadSnippet"
                     >
                         Upload
                     </a>
@@ -30,7 +30,7 @@
                             v-model:paste="omnibar"
                             v-on:paste="parsePaste"
                             v-on:keydown.enter="omnibarNewline"
-                            v-bind:rows="omnibarType == ShrlType.shortenedURL ? 1 : 6"
+                            v-bind:rows="omnibarType == ShrlType.shortenedURL ? 1 : Math.max(6, omnibar.split('\n').length)"
                             v-bind:type="omnibarType == ShrlType.shortenedURL ? 'text' : 'textarea'"
                             v-bind:class="omnibarType == ShrlType.shortenedURL ? 'input' : 'textarea'"
                         ></textarea>
@@ -61,18 +61,19 @@
 import { bus, ShrlType } from "../index.js"
 
 function isValidHttpUrl(string) {
-  let url;
-  if (string.indexOf("\n") > -1) {
-      return false;
-  }
-  
-  try {
-    url = new URL(string);
-  } catch (_) {
-    return "http://".startsWith(string) || "https://".startsWith(string)
-  }
+    string = string.toLowerCase()
+    let url;
+    if (string.indexOf("\n") > -1) {
+        return false;
+    }
+    
+    try {
+        url = new URL(string);
+    } catch (_) {
+        return "http://".startsWith(string) || "https://".startsWith(string)
+    }
 
-  return url.protocol === "http:" || url.protocol === "https:";
+        return url.protocol === "http:" || url.protocol === "https:";
 }
 
 export default {
@@ -116,12 +117,12 @@ export default {
             }
         },
         parseOmnibar: function() {
-            let paste = this.omnibar
-            if (isValidHttpUrl(paste)) {
-                this.createShrl(paste)
-            } else {
-                this.createSnippet(this.snippetTitle, paste)
+            if (isValidHttpUrl(this.omnibar)) {
+                this.createShrl(this.omnibar)
             }
+        },
+        uploadSnippet: function() {
+            this.createSnippet(this.snippetTitle, this.omnibar)
         },
         omnibarUpload: function(e) {
             let file = e.target.files[0];
@@ -169,5 +170,10 @@ export default {
 <style>
 textarea {
     resize: none;
+}
+.sticky {
+    position: sticky;
+    z-index: 10;
+    top: 0px;
 }
 </style>

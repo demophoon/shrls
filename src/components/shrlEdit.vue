@@ -57,8 +57,16 @@ export default {
     props: ["shrl", "params", "editing"],
     data: function() {
         return {
-            snippetTitle: this.params.snippetTitle,
-            snippet: this.params.snippet,
+            snippetTitle: "",
+            snippet: "",
+        }
+    },
+    watch: {
+        editing: function() {
+            if (this.editing) {
+                this.snippetTitle = this.params.snippetTitle
+                this.snippet = this.params.snippet
+            }
         }
     },
     computed: {

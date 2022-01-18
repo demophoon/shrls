@@ -1,21 +1,37 @@
 <template>
     <tr>
         <td>
-            <button v-on:click="edit" class="button is-small is-info">Edit</button>
-            <button v-on:click="copyUrl" class="button is-small is-info">Copy</button>
+            <button v-on:click="edit" class="button is-small">
+                <span class="icon">
+                    <i class="fas fa-edit"></i>
+                </span>
+            </button>
+            <button v-on:click="copyUrl" class="button is-small">
+                <span class="icon">
+                    <i class="fas fa-copy"></i>
+                </span>
+            </button>
         </td>
+
         <td>
-            {{ shrl.views }}
+            <span class="icon" v-if="shrl.type == ShrlType.shortenedURL">
+                <i class="fas fa-link"></i>
+            </span>
+            <span class="icon" v-if="shrl.type == ShrlType.uploadedFile">
+                <i class="fas fa-file"></i>
+            </span>
+            <span class="icon" v-if="shrl.type == ShrlType.textSnippet">
+                <i class="fas fa-code"></i>
+            </span>
+            <a target='_blank' v-bind:href="short_url">{{ shrl.alias }}</a>
         </td>
+
         <td>
-            <a v-bind:href="short_url">{{ shrl.alias }}</a>
-            <span v-if="shrl.type == 0">
-                <br>
-                <small>
-                    <a v-bind:href="shrl.location">{{ shrl.location.slice(0, 50) }}</a>
-                </small>
+            <span class='is-size-7' v-if="shrl.type == 0">
+                <a target='_blank' v-bind:href="shrl.location">{{ domain }}</a>
             </span>
         </td>
+
         <shrl-edit
             v-on:save="save"
             v-on:remove="remove"
@@ -28,7 +44,7 @@
 </template>
 
 <script>
-import { bus } from "../index.js"
+import { bus, ShrlType } from "../index.js"
 import copy from "copy-to-clipboard"
 
 export default {
@@ -37,22 +53,40 @@ export default {
         return {
             editing: false,
             params: {},
+            ShrlType,
         }
     },
     computed: {
         short_url: function() {
             return "/" + this.shrl.alias;
         },
+        domain: function() {
+            if (this.shrl.type == ShrlType.shortenedURL) {
+                try {
+                    return new URL(this.shrl.location).host
+                } catch (_) {
+                    return ""
+                }
+            }
+            return ""
+        },
     },
     methods: {
         save: function() {
             let el = this;
-            fetch("/api/shrl/" + el.shrl.id, {
-                method: "PUT",
-                body: JSON.stringify(el.shrl),
-            }).then(() => {
-                el.closeEdit();
-            })
+            switch (this.shrl.type) {
+                case ShrlType.shortenedURL:
+                    fetch("/api/shrl/" + el.shrl.id, {
+                        method: "PUT",
+                        body: JSON.stringify(el.shrl),
+                    }).then(() => {
+                        el.closeEdit();
+                    })
+                    break;
+                default:
+                    el.closeEdit();
+                    break;
+            }
         },
         remove: function() {
             let el = this;
@@ -65,16 +99,19 @@ export default {
         },
         edit: function() {
             let self = this
-            if (this.shrl.type == 2) {
-                fetch("/api/snippet/" + this.shrl.id).then(d => {
-                    return d.json()
-                }).then((pl) => {
-                    self.params.snippetTitle = pl.title
-                    self.params.snippet = pl.body
-                    self.editing = true
-                })
-            } else {
-                this.editing = true
+            switch (this.shrl.type) {
+                case ShrlType.textSnippet:
+                    fetch("/api/snippet/" + this.shrl.id).then(d => {
+                        return d.json()
+                    }).then((pl) => {
+                        self.params.snippetTitle = pl.title
+                        self.params.snippet = pl.body
+                        self.editing = true
+                    })
+                    break;
+                default:
+                    this.editing = true
+                    break;
             }
         },
         closeEdit: function() {
