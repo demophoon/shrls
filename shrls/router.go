@@ -24,10 +24,15 @@ type URLListResponse struct {
 	URLs  []*URL `json:"shrls"`
 }
 
-func shrlFromRequest(r *http.Request) *URL {
+func shrlFromRequest(r *http.Request) (*URL, string) {
+	var ext string
 	shrl := pat.Param(r, "shrl")
-	alias := strings.Split(shrl, ".")[0]
-	return getShrl(alias)
+	parts := strings.Split(shrl, ".")
+	alias := parts[0]
+	if len(parts) > 1 {
+		ext = parts[len(parts)-1]
+	}
+	return getShrl(alias), ext
 }
 
 func getShrl(shrl string) *URL {
@@ -44,17 +49,25 @@ func getShrl(shrl string) *URL {
 }
 
 func resolveShrl(w http.ResponseWriter, r *http.Request) {
-	shrl := shrlFromRequest(r)
+	shrl, ext := shrlFromRequest(r)
 	go shrl.IncrementViews()
-	switch shrl.Type {
-	case ShortenedUrl:
-		http.Redirect(w, r, shrl.Location, http.StatusPermanentRedirect)
 
-	case UploadedFile:
-		writeFile(shrl, w)
+	switch ext {
+	case "qr":
+		shrl.ToQR(w)
+	case "txt":
+		shrl.ToText(w)
+	default:
+		switch shrl.Type {
+		case ShortenedUrl:
+			http.Redirect(w, r, shrl.Location, http.StatusPermanentRedirect)
 
-	case TextSnippet:
-		w.Write([]byte(shrl.Snippet))
+		case UploadedFile:
+			writeFile(shrl, w)
+
+		case TextSnippet:
+			w.Write([]byte(shrl.Snippet))
+		}
 	}
 }
 
@@ -106,7 +119,7 @@ func urlPrintAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func urlPrintInfo(w http.ResponseWriter, r *http.Request) {
-	shrl := shrlFromRequest(r)
+	shrl, _ := shrlFromRequest(r)
 	output, err := json.Marshal(shrl)
 	if err != nil {
 		http.Error(w, "Invalid SHRL", 500)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"time"
 
@@ -10,6 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	qrcode "github.com/skip2/go-qrcode"
 )
 
 type ShrlType int
@@ -53,6 +56,26 @@ func (u URL) IncrementViews() error {
 	})
 	return err
 
+}
+
+func (u URL) ToQR(w io.Writer) error {
+	result, err := qrcode.New(u.Location, qrcode.Medium)
+	if err != nil {
+		return err
+	}
+	result.Write(256, w)
+	return nil
+}
+
+func (u URL) ToText(w io.Writer) {
+	switch u.Type {
+	case ShortenedUrl:
+		w.Write([]byte(u.Location))
+	case TextSnippet:
+		w.Write([]byte(u.Snippet))
+	case UploadedFile:
+		w.Write([]byte("Unable to write binary to text"))
+	}
 }
 
 type URLs struct {
