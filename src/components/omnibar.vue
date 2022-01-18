@@ -26,7 +26,7 @@
                 <div class="field">
                     <label class="label has-text-light" v-if="omnibarType == ShrlType.textSnippet"></label>
                     <div class="control">
-                        <textarea class="has-fixed-size" placeholder="Paste URL / Snippet / File"
+                        <textarea autocomplete="off" class="has-fixed-size" placeholder="Paste URL / Snippet / File"
                             v-model:paste="omnibar"
                             v-on:paste="parsePaste"
                             v-on:keydown.enter="omnibarNewline"
