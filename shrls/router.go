@@ -17,11 +17,27 @@ import (
 
 type URLUpdateResponse struct {
 	Status string `json:"status"`
+	URL    *URL   `json:"shrl"`
 }
 
 type URLListResponse struct {
 	Count int64  `json:"count"`
 	URLs  []*URL `json:"shrls"`
+}
+
+func ErrorResponse(w http.ResponseWriter, url *URL, status int) {
+	StatusResponse(w, url, "Error", status)
+}
+
+func SuccessResponse(w http.ResponseWriter, url *URL) {
+	StatusResponse(w, url, "Success", http.StatusOK)
+}
+
+func StatusResponse(w http.ResponseWriter, url *URL, status string, code int) {
+	w.WriteHeader(code)
+	encoder := json.NewEncoder(w)
+	response := URLUpdateResponse{Status: status, URL: url}
+	encoder.Encode(response)
 }
 
 func shrlFromRequest(r *http.Request) (*URL, string) {
@@ -133,21 +149,19 @@ func urlNew(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 	err := decoder.Decode(&shrl)
 	if err != nil {
-		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		ErrorResponse(w, nil, http.StatusBadRequest)
 		return
 	}
 	createUrl(&shrl)
 
-	encoder := json.NewEncoder(w)
-	response := URLUpdateResponse{Status: "Success"}
-	encoder.Encode(response)
+	SuccessResponse(w, &shrl)
 }
 
 func urlModify(w http.ResponseWriter, r *http.Request) {
 	shrl_id := pat.Param(r, "shrl_id")
 	shrl, err := urlByID(shrl_id)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Unable to locate SHRL (%s) %s", shrl_id, err), http.StatusNotFound)
+		ErrorResponse(w, nil, http.StatusNotFound)
 		return
 	}
 
@@ -156,41 +170,44 @@ func urlModify(w http.ResponseWriter, r *http.Request) {
 	var updated_shrl URL
 	err = decoder.Decode(&updated_shrl)
 	if err != nil {
-		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		ErrorResponse(w, shrl, http.StatusBadRequest)
 		return
 	}
 
 	shrl.Alias = updated_shrl.Alias
-	shrl.Location = updated_shrl.Location
 	shrl.Tags = updated_shrl.Tags
+
+	switch shrl.Type {
+	case ShortenedUrl:
+		shrl.Location = updated_shrl.Location
+	case TextSnippet:
+		fmt.Printf("%v\n", updated_shrl)
+		shrl.Snippet = updated_shrl.Snippet
+		shrl.SnippetTitle = updated_shrl.SnippetTitle
+	}
 	err = updateUrl(shrl)
 
 	if err != nil {
-		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		fmt.Printf("err: %v", err)
+		ErrorResponse(w, shrl, http.StatusBadRequest)
 		return
 	}
-
-	encoder := json.NewEncoder(w)
-	response := URLUpdateResponse{Status: "Success"}
-	encoder.Encode(response)
+	SuccessResponse(w, shrl)
 }
 
 func urlDelete(w http.ResponseWriter, r *http.Request) {
 	shrl_id := pat.Param(r, "shrl_id")
 
-	response := URLUpdateResponse{Status: "Success"}
-	encoder := json.NewEncoder(w)
-
 	url, err := urlByID(shrl_id)
 	if err != nil {
-		response = URLUpdateResponse{Status: "Error"}
-		encoder.Encode(response)
+		ErrorResponse(w, nil, http.StatusNotFound)
 		return
 	}
 
 	err = url.Delete()
 	if err != nil {
-		response = URLUpdateResponse{Status: "Error"}
+		ErrorResponse(w, url, http.StatusInternalServerError)
+		return
 	}
-	encoder.Encode(response)
+	SuccessResponse(w, url)
 }
