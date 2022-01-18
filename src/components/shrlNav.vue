@@ -6,7 +6,7 @@
             </a>
         </div>
 
-        <div class="navbar-end">
+        <div class="navbar-end is-hidden-mobile">
             <div class="navbar-item">
                 <shrl-search />
             </div>

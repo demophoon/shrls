@@ -55,6 +55,9 @@ const app = new Vue({
         <shrl-omnibar />
 
         <div class="columns">
+            <div class="column is-hidden-tablet">
+                <shrl-search />
+            </div>
             <div class="column">
                 <shrl-list v-bind:shrls='shrls' v-bind:count="count" v-bind:searchOpts='searchOpts'></shrl-list>
             </div>
