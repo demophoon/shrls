@@ -181,14 +181,12 @@ func urlModify(w http.ResponseWriter, r *http.Request) {
 	case ShortenedUrl:
 		shrl.Location = updated_shrl.Location
 	case TextSnippet:
-		fmt.Printf("%v\n", updated_shrl)
 		shrl.Snippet = updated_shrl.Snippet
 		shrl.SnippetTitle = updated_shrl.SnippetTitle
 	}
 	err = updateUrl(shrl)
 
 	if err != nil {
-		fmt.Printf("err: %v", err)
 		ErrorResponse(w, shrl, http.StatusBadRequest)
 		return
 	}
