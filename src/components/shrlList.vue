@@ -15,8 +15,8 @@
         </table>
 
         <nav class="pagination">
-            <a v-on:click="previousPage" v-bind:disabled="page <= 0" class="pagination-previous">&lt;&lt;</a>
-            <a v-on:click="nextPage" v-bind:disabled="page + 1 >= pageCount" class="pagination-next">&gt;&gt;</a>
+            <a v-on:click="previousPage" v-bind:disabled="page <= 0" class="pagination-previous">Previous</a>
+            <a v-on:click="nextPage" v-bind:disabled="page + 1 >= pageCount" class="pagination-next">Next Page</a>
             <ul class="pagination-list">
                 <li v-if="page > numPages"><a v-on:click="setPage(0)" class="pagination-link"> 1 </a></li>
                 <li v-if="page > numPages"><span class="pagination-ellipsis">&hellip;</span></li>
@@ -44,7 +44,7 @@ import { bus } from "../index.js"
 export default {
     data: function() {
         return {
-            numPages: 3,
+            numPages: 2,
         }
     },
     computed: {

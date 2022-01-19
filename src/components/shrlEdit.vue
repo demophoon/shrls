@@ -6,13 +6,22 @@
             <div class="box is-vcentered">
 
                 <h1 class="title">
-                    Edit
+                    Edit /{{ shrl.alias }}
                 </h1>
                 <h2 class="subtitle">
                     {{ type }}
                 </h2>
 
-                <div class="field" v-if="shrl.type == 0">
+                <div class="field">
+                    <label class="label">Views</label>
+                    <div class="control">
+                        <input class="input" type="text" readonly
+                            v-bind:value="shrl.views" 
+                        />
+                    </div>
+                </div>
+
+                <div class="field" v-if="shrl.type == ShrlType.shortenedURL">
                     <label class="label">Location</label>
                     <div class="control">
                         <input class="input" type="text" placeholder="https://example.com/"
@@ -30,14 +39,14 @@
                     </div>
                 </div>
 
-                <div class="field" v-if="shrl.type == 2">
+                <div class="field" v-if="shrl.type == ShrlType.textSnippet">
                     <label class="label">Snippet Title</label>
                     <div class="control">
                         <input type="text" class="input" placeholder="Snippet Title" v-model="shrl.snippet_title"/>
                     </div>
                 </div>
 
-                <div class="field" v-if="shrl.type == 2">
+                <div class="field" v-if="shrl.type == ShrlType.textSnippet">
                     <label class="label">Snippet</label>
                     <div class="control">
                         <textarea v-model="shrl.snippet" class="textarea" rows="6" placeholder="Snippet of text"></textarea>
@@ -52,9 +61,12 @@
 </template>
 
 <script>
-import { ShrlEnum } from "../index.js"
+import { ShrlEnum, ShrlType } from "../index.js"
 export default {
     props: ["shrl", "editing"],
+    data: function() {
+        return {ShrlType}
+    },
     computed: {
         type: function() {
             return ShrlEnum[this.shrl.type];

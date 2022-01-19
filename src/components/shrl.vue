@@ -11,7 +11,7 @@
                     <i class="fas fa-copy"></i>
                 </span>
             </button>
-            <button v-on:click="copyQR" class="button is-small">
+            <button  v-if="shrl.type == ShrlType.shortenedURL" v-on:click="copyQR" class="button is-small">
                 <span class="icon">
                     <i class="fas fa-qrcode"></i>
                 </span>
