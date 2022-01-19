@@ -5,7 +5,6 @@
                 <tr>
                     <th class="is-1">Actions</th>
                     <th class="is-3">Alias</th>
-                    <th>Location</th>
                     <th>Tags</th>
                 </tr>
             </thead>

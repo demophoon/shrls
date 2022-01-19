@@ -1,5 +1,5 @@
 <template>
-    <nav class="navbar is-spaced" role="navigation" aria-label="main navigation">
+    <nav class="navbar my-3" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="/admin/">
                 <img src="../img/banner.png" width="112" height="28">

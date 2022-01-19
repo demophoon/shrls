@@ -53,6 +53,23 @@
                     </div>
                 </div>
 
+                <div class="field">
+                    <label class="label">Tags</label>
+                </div>
+                <div class="field is-grouped is-grouped-multiline">
+                    <div class="control" v-for="tag in shrl.tags">
+                        <div class="tags has-addons are-large">
+                            <span class="tag is-light is-primary">{{ tag }}</span>
+                            <a v-on:click="removeTag(tag)" class="tag is-delete"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <input type="text" class="input" placeholder="Add tag" v-model="currentTag" v-on:keypress.enter="addTag">
+                    </div>
+                </div>
+
                 <button v-on:click="$emit('save')" class="button is-small is-primary">Save</button>
                 <button v-on:click="$emit('remove')" class="button is-small is-danger">Delete</button>
             </div>
@@ -62,10 +79,14 @@
 
 <script>
 import { ShrlEnum, ShrlType } from "../index.js"
+
 export default {
     props: ["shrl", "editing"],
     data: function() {
-        return {ShrlType}
+        return {
+            currentTag: "",
+            ShrlType,
+        }
     },
     computed: {
         type: function() {
@@ -79,5 +100,14 @@ export default {
             }
         })
     },
+    methods: {
+        addTag() {
+            this.shrl.tags.push(this.currentTag)
+            this.currentTag = ""
+        },
+        removeTag(tag) {
+            this.shrl.tags = this.shrl.tags.filter((t) => { return t != tag })
+        }
+    }
 }
 </script>

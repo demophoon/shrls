@@ -5,6 +5,7 @@ import ShrlEdit from "./components/shrlEdit.vue"
 import ShrlNav from "./components/shrlNav.vue"
 import ShrlOmnibar from "./components/omnibar.vue"
 import ShrlSearch from "./components/shrlSearch.vue"
+import ShrlFooter from "./components/footer.vue"
 
 import 'bulma/css/bulma.css'
 import '@fortawesome/fontawesome-free/css/all.css'
@@ -17,6 +18,7 @@ Vue.component("shrl-edit", ShrlEdit)
 Vue.component("shrl-nav", ShrlNav)
 Vue.component("shrl-omnibar", ShrlOmnibar)
 Vue.component("shrl-search", ShrlSearch)
+Vue.component("shrl-footer", ShrlFooter)
 
 const container = document.createElement("div")
 
@@ -49,19 +51,26 @@ const app = new Vue({
         }
     },
     template: `
-    <div class="container">
-        <shrl-nav></shrl-nav>
-
-        <shrl-omnibar />
-
-        <div class="columns">
-            <div class="column is-hidden-tablet">
-                <shrl-search />
-            </div>
-            <div class="column">
-                <shrl-list v-bind:shrls='shrls' v-bind:count="count" v-bind:searchOpts='searchOpts'></shrl-list>
-            </div>
+    <div>
+        <div class="container">
+            <shrl-nav></shrl-nav>
         </div>
+
+        <div class="container mb-6 mt-4">
+
+            <shrl-omnibar />
+
+            <div class="columns">
+                <div class="column is-hidden-tablet">
+                    <shrl-search />
+                </div>
+                <div class="column">
+                    <shrl-list v-bind:shrls='shrls' v-bind:count="count" v-bind:searchOpts='searchOpts'></shrl-list>
+                </div>
+            </div>
+
+        </div>
+        <shrl-footer />
     </div>
     `,
     created: function() {
