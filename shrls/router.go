@@ -130,9 +130,6 @@ func urlPrintAll(w http.ResponseWriter, r *http.Request) {
 	if prms.Limit > 100 {
 		prms.Limit = 100
 	}
-	if prms.Limit < 25 {
-		prms.Limit = 25
-	}
 
 	urls, count, err := paginatedUrls(prms)
 
