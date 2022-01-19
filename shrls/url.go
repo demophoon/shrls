@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/thanhpk/randstr"
@@ -76,6 +77,13 @@ func (u URL) ToText(w io.Writer) {
 	case UploadedFile:
 		w.Write([]byte("Unable to write binary to text"))
 	}
+}
+
+func (u URL) FriendlyAlias() string {
+	var strs []string
+	strs = append(strs, Settings.BaseURL)
+	strs = append(strs, u.Alias)
+	return strings.Join(strs, "/")
 }
 
 type URLs struct {

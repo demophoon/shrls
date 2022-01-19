@@ -3,10 +3,12 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-    mode: 'development',
-    entry: './src/index.js',
+    entry: {
+        bundle: ['./src/index.js'],
+        bookmarklet: ['./src/bookmarklet.js'],
+    },
     output: {
-        filename: './bundle.js',
+        filename: './[name].js',
     },
     resolve: {
         alias: {
@@ -59,6 +61,7 @@ module.exports = {
         new VueLoaderPlugin(),
         new HtmlWebpackPlugin({
             title: 'SHRLS Admin',
+            chunks: ['bundle'],
         }),
     ]
 };

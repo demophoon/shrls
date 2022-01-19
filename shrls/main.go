@@ -18,6 +18,7 @@ import (
 )
 
 type ShrlSettings struct {
+	BaseURL               string
 	Port                  int
 	DefaultRedirect       string
 	UploadDirectory       string
@@ -40,6 +41,7 @@ func init() {
 	}
 
 	Settings = ShrlSettings{
+		BaseURL:         os.Getenv("SHRLS_BASE_URL"),
 		Port:            port,
 		DefaultRedirect: os.Getenv("DEFAULT_REDIRECT"),
 		UploadDirectory: os.Getenv("UPLOAD_DIRECTORY"),
@@ -97,6 +99,8 @@ func main() {
 	api_mux.HandleFunc(pat.Put("/shrl/:shrl_id"), urlModify)
 	api_mux.HandleFunc(pat.Delete("/shrl/:shrl_id"), urlDelete)
 	api_mux.HandleFunc(pat.Post("/shrl"), urlNew)
+
+	api_mux.HandleFunc(pat.Get("/bookmarklet/new"), bookmarkletNew)
 
 	// File Uploads
 	api_mux.HandleFunc(pat.Post("/upload"), fileUpload)

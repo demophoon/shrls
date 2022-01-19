@@ -1,17 +1,20 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"math/rand"
 	"net/http"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 	"goji.io/pat"
 )
 
@@ -109,6 +112,41 @@ func writeFile(shrl *URL, w http.ResponseWriter) {
 	defer read.Close()
 
 	io.Copy(w, read)
+}
+
+func bookmarkletNew(w http.ResponseWriter, r *http.Request) {
+	url := r.URL.Query().Get("u")
+	img := r.URL.Query().Get("i")
+	var shrl URL
+	if url != "" {
+		shrl = ShrlFromString(url)
+	} else if img != "" {
+		by, err := base64.StdEncoding.DecodeString(img)
+		if err != nil {
+			return
+		}
+		file_uuid, _ := uuid.New()
+		filepath := path.Join(Settings.UploadDirectory, fmt.Sprintf("%s", file_uuid))
+		dst, _ := os.Create(filepath)
+		defer dst.Close()
+		dst.Write(by)
+		shrl = FileFromString(filepath)
+	}
+
+	shrljson, _ := json.Marshal(&struct {
+		Info URL    `json:"info"`
+		Url  string `json:"shrl"`
+	}{
+		Info: shrl,
+		Url:  shrl.FriendlyAlias(),
+	})
+	js_preamble := fmt.Sprintf(`
+	document.currentScript.dispatchEvent(new CustomEvent('shrls-response', {
+		detail: %s,
+	}))
+	`, shrljson)
+	w.Header().Set("Content-Type", "application/javascript")
+	w.Write([]byte(js_preamble))
 }
 
 func urlPrintAll(w http.ResponseWriter, r *http.Request) {

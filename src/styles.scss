@@ -1,18 +1,5 @@
 @charset "utf-8";
 
-// Theme colors
-$dark: #1a1e23;
-$light: #fbfbff;
-$highlight: #7951a1;
-$alternative: #957186;
-$accent: #ea9010;
-
-
-// Bulma overrides
-$primary: $highlight;
-$text: $dark;
-$background: $light;
-
-
+@import "./shrls.scss";
 @import "bulma/bulma.sass";
-@import "bulma-list/sass/bulma-list.sass"
+@import "bulma-list/sass/bulma-list.sass";
