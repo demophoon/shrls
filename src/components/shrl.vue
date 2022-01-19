@@ -15,7 +15,7 @@
 
         <div class="list-item-content">
             <div class="list-item-title">
-                <a target="_blank" v-bind:href="shrl.alias">{{ shrl.alias }}</a>
+                <a target="_blank" v-bind:href="short_url">{{ shrl.alias }}</a>
             </div>
 
             <div class="list-item-description">
