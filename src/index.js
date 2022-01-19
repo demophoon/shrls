@@ -58,13 +58,21 @@ const app = new Vue({
 
         <div class="container mb-6 mt-4">
 
-            <shrl-omnibar />
+            
+            <div class="columns is-centered">
+                <div class="column is-two-thirds">
+                    <shrl-omnibar />
+                </div>
+            </div>
 
-            <div class="columns">
-                <div class="column is-hidden-tablet">
+            <div class="columns is-centered">
+                <div class="column is-two-thirds is-hidden-tablet">
                     <shrl-search />
                 </div>
-                <div class="column">
+            </div>
+
+            <div class="columns is-centered">
+                <div class="column is-two-thirds">
                     <shrl-list v-bind:shrls='shrls' v-bind:count="count" v-bind:searchOpts='searchOpts'></shrl-list>
                 </div>
             </div>

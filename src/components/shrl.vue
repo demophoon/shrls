@@ -1,5 +1,4 @@
 <template>
-
     <div class="list-item">
         <div class="list-item-image">
             <span class="icon" v-if="shrl.type == ShrlType.shortenedURL">
@@ -36,23 +35,25 @@
             <div class="list-item-controls">
                 <div class="buttons is-right">
 
+                    <button  v-if="shrl.type == ShrlType.shortenedURL" v-on:click="copyQR" class="button">
+                        <span class="icon is-small">
+                            <i class="fas fa-qrcode"></i>
+                        </span>
+                        <span>QR Code</span>
+                    </button>
+
                     <button v-on:click="edit" class="button">
                         <span class="icon is-small">
                             <i class="fas fa-edit"></i>
                         </span>
                         <span>Edit</span>
                     </button>
+
                     <button v-on:click="copyUrl" class="button">
                         <span class="icon is-small">
                             <i class="fas fa-copy"></i>
                         </span>
                         <span>Copy</span>
-                    </button>
-                    <button  v-if="shrl.type == ShrlType.shortenedURL" v-on:click="copyQR" class="button">
-                        <span class="icon is-small">
-                            <i class="fas fa-qrcode"></i>
-                        </span>
-                        <span>QR Code</span>
                     </button>
 
                 </div>

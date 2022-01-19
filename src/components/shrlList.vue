@@ -7,7 +7,7 @@
             </span>
         </div>
 
-        <nav class="pagination">
+        <nav class="pagination mt-4">
             <a v-on:click="previousPage" v-bind:disabled="page <= 0" class="pagination-previous">Previous</a>
             <a v-on:click="nextPage" v-bind:disabled="page + 1 >= pageCount" class="pagination-next">Next Page</a>
             <ul class="pagination-list">
