@@ -34,13 +34,20 @@ func SuccessResponse(w http.ResponseWriter, url *URL) {
 }
 
 func StatusResponse(w http.ResponseWriter, url *URL, status string, code int) {
+	if url == nil {
+		url = &URL{}
+	}
 	w.WriteHeader(code)
 	encoder := json.NewEncoder(w)
 	response := URLUpdateResponse{Status: status, URL: url}
 	encoder.Encode(response)
 }
 
-func shrlFromRequest(r *http.Request) (*URL, string) {
+func defaultRedirect(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, Settings.DefaultRedirect, http.StatusTemporaryRedirect)
+}
+
+func shrlFromRequest(r *http.Request) (*URL, string, error) {
 	var ext string
 	shrl := pat.Param(r, "shrl")
 	parts := strings.Split(shrl, ".")
@@ -48,24 +55,31 @@ func shrlFromRequest(r *http.Request) (*URL, string) {
 	if len(parts) > 1 {
 		ext = parts[len(parts)-1]
 	}
-	return getShrl(alias), ext
+	url, err := getShrl(alias)
+	if err != nil {
+		return url, ext, err
+	}
+	return url, ext, err
 }
 
-func getShrl(shrl string) *URL {
+func getShrl(shrl string) (*URL, error) {
+	var url *URL
 	filter := bson.D{
 		primitive.E{Key: "alias", Value: shrl},
 	}
 	urls, err := filterUrls(filter)
 	if err != nil {
-		return &URL{
-			Location: "https://www.brittg.com/",
-		}
+		return url, err
 	}
-	return urls[rand.Intn(len(urls))]
+	return urls[rand.Intn(len(urls))], nil
 }
 
 func resolveShrl(w http.ResponseWriter, r *http.Request) {
-	shrl, ext := shrlFromRequest(r)
+	shrl, ext, err := shrlFromRequest(r)
+	if err != nil {
+		defaultRedirect(w, r)
+		return
+	}
 	go shrl.IncrementViews()
 
 	switch ext {
@@ -135,10 +149,13 @@ func urlPrintAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func urlPrintInfo(w http.ResponseWriter, r *http.Request) {
-	shrl, _ := shrlFromRequest(r)
+	shrl, _, err := shrlFromRequest(r)
+	if err != nil {
+		ErrorResponse(w, shrl, http.StatusInternalServerError)
+	}
 	output, err := json.Marshal(shrl)
 	if err != nil {
-		http.Error(w, "Invalid SHRL", 500)
+		ErrorResponse(w, shrl, http.StatusInternalServerError)
 	}
 	w.Write(output)
 }
