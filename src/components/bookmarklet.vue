@@ -26,7 +26,7 @@
                             <button class="button" v-on:click="saveScreenshot">Save Screenshot</button>
                         </div>
                         <div class="column">
-                            <button class="button">Save Text Snippet</button>
+                            <button class="button" v-on:click="saveSelection">Save Text Snippet</button>
                         </div>
                     </div>
 
@@ -58,6 +58,7 @@ export default {
             visible: true,
             currentUrl: "",
             screenshot: undefined,
+            selection: "",
         }
     },
     computed: {
@@ -82,6 +83,10 @@ export default {
         saveScreenshot() {
             this.upload(BookmarkletTypes.File, this.screenshotDataUrl.split(",")[1])
         },
+        saveSelection() {
+            console.log(this.selection)
+            this.upload(BookmarkletTypes.Snippet, this.selection)
+        },
         upload(type, data) {
             let s = document.createElement("script")
             let query = "?" + encodeURIComponent(type) + "=" + encodeURIComponent(data)
@@ -96,6 +101,13 @@ export default {
     },
     beforeMount() {
         let el = this
+        // Current Selection
+        if (window.getSelection) {
+            el.selection = window.getSelection().toString();
+        } else if (document.selection && document.selection.type != "Control") {
+            el.selection = document.selection.createRange().text
+        }
+        // Screenshot
         html2canvas(document.body).then((canvas) => {
             el.screenshot = canvas
         })

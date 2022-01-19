@@ -117,6 +117,7 @@ func writeFile(shrl *URL, w http.ResponseWriter) {
 func bookmarkletNew(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Query().Get("u")
 	img := r.URL.Query().Get("i")
+	snippet := r.URL.Query().Get("s")
 	var shrl URL
 	if url != "" {
 		shrl = ShrlFromString(url)
@@ -131,6 +132,11 @@ func bookmarkletNew(w http.ResponseWriter, r *http.Request) {
 		defer dst.Close()
 		dst.Write(by)
 		shrl = FileFromString(filepath)
+	} else if snippet != "" {
+		shrl = uploadSnippet(SnippetRequest{
+			SnippetTitle: "From Bookmarklet",
+			SnippetBody:  snippet,
+		})
 	}
 
 	shrljson, _ := json.Marshal(&struct {
