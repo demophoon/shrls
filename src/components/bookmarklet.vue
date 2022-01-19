@@ -44,6 +44,7 @@
 
 <script>
 var html2canvas = require('html2canvas');
+var copy = require('copy-to-clipboard');
 
 const BookmarkletTypes = {
     Url: 'u',
@@ -90,6 +91,7 @@ export default {
         },
         handleResponse(e) {
             this.currentUrl = e.detail.shrl
+            copy(this.currentUrl)
         }
     },
     beforeMount() {

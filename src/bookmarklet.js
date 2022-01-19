@@ -3,7 +3,8 @@ import Vue from "vue"
 import Bookmarklet from "./components/bookmarklet.vue"
 
 require('./bookmarklet.scss')
-var html2canvas = require('html2canvas');
+require('html2canvas');
+require('copy-to-clipboard');
 
 (() => {
     let bus_id = "data-shrls-modal"
