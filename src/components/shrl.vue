@@ -1,43 +1,24 @@
 <template>
-    <tr>
-        <td>
-            <span class="my-2">
-                <button v-on:click="edit" class="button is-small">
-                    <span class="icon">
-                        <i class="fas fa-edit"></i>
-                    </span>
-                </button>
-                <button v-on:click="copyUrl" class="button is-small">
-                    <span class="icon">
-                        <i class="fas fa-copy"></i>
-                    </span>
-                </button>
-                <button  v-if="shrl.type == ShrlType.shortenedURL" v-on:click="copyQR" class="button is-small">
-                    <span class="icon">
-                        <i class="fas fa-qrcode"></i>
-                    </span>
-                </button>
+
+    <div class="list-item">
+        <div class="list-item-image">
+            <span class="icon" v-if="shrl.type == ShrlType.shortenedURL">
+                <i class="fas fa-link"></i>
             </span>
-        </td>
-
-        <td>
-            <span class="my-2 mr-3 is-pulled-left">
-                <span class="icon" v-if="shrl.type == ShrlType.shortenedURL">
-                    <i class="fas fa-link"></i>
-                </span>
-                <span class="icon" v-if="shrl.type == ShrlType.textSnippet">
-                    <i class="fas fa-code"></i>
-                </span>
-                <span class="icon" v-if="shrl.type == ShrlType.uploadedFile">
-                    <i class="fas fa-file"></i>
-                </span>
+            <span class="icon" v-if="shrl.type == ShrlType.textSnippet">
+                <i class="fas fa-code"></i>
             </span>
+            <span class="icon" v-if="shrl.type == ShrlType.uploadedFile">
+                <i class="fas fa-file"></i>
+            </span>
+        </div>
 
-            <div>
-                <a target="_blank" v-bind:href="short_url">{{ shrl.alias }}</a>
+        <div class="list-item-content">
+            <div class="list-item-title">
+                <a target="_blank" v-bind:href="shrl.alias">{{ shrl.alias }}</a>
+            </div>
 
-                <br>
-
+            <div class="list-item-description">
                 <span class="is-size-7" v-if="shrl.type == ShrlType.shortenedURL">
                     <a target="_blank" v-bind:href="shrl.location">{{ domain }}</a>
                 </span>
@@ -47,15 +28,37 @@
                 <span class="is-size-7" v-if="shrl.type == ShrlType.uploadedFile">
                     Uploaded File
                 </span>
-
+                <div class="tags" v-if="shrl.tags.length > 0">
+                    <span v-for="tag in shrl.tags" class="tag is-light is-primary">{{ tag }}</span>
+                </div>
             </div>
-        </td>
 
-        <td>
-            <span class="tags">
-                <span v-for="tag in shrl.tags" class="tag is-light is-primary">{{ tag }}</span>
-            </span>
-        </td>
+            <div class="list-item-controls">
+                <div class="buttons is-right">
+
+                    <button v-on:click="edit" class="button">
+                        <span class="icon is-small">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                        <span>Edit</span>
+                    </button>
+                    <button v-on:click="copyUrl" class="button">
+                        <span class="icon is-small">
+                            <i class="fas fa-copy"></i>
+                        </span>
+                        <span>Copy</span>
+                    </button>
+                    <button  v-if="shrl.type == ShrlType.shortenedURL" v-on:click="copyQR" class="button">
+                        <span class="icon is-small">
+                            <i class="fas fa-qrcode"></i>
+                        </span>
+                        <span>QR Code</span>
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
 
         <shrl-edit
             v-on:save="save"
@@ -65,7 +68,7 @@
             v-bind:shrl="shrl"
             v-bind:editing="editing"
         ></shrl-edit>
-    </tr>
+    </div>
 </template>
 
 <script>
@@ -131,12 +134,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.ti-input {
-    border: none;
-}
-.vue-tags {
-    max-width: 200px;
-}
-</style>

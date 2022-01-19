@@ -60,7 +60,7 @@
                     <div class="control" v-for="tag in shrl.tags">
                         <div class="tags has-addons are-large">
                             <span class="tag is-light is-primary">{{ tag }}</span>
-                            <a v-on:click="removeTag(tag)" class="tag is-delete"></a>
+                            <a v-on:click="removeTag(tag)" class="tag is-delete is-primary"></a>
                         </div>
                     </div>
                 </div>

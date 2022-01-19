@@ -7,7 +7,7 @@ import ShrlOmnibar from "./components/omnibar.vue"
 import ShrlSearch from "./components/shrlSearch.vue"
 import ShrlFooter from "./components/footer.vue"
 
-import 'bulma/css/bulma.css'
+require('./styles.scss')
 import '@fortawesome/fontawesome-free/css/all.css'
 
 var _ = require('lodash');
@@ -46,7 +46,7 @@ const app = new Vue({
             searchOpts: {
                 search: "",
                 page: 0,
-                limit: 25,
+                limit: 15,
             },
         }
     },

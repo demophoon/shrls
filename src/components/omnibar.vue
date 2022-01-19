@@ -1,5 +1,5 @@
 <template>
-    <div class="box has-background-info my-5">
+    <div class="box has-background-primary my-5">
         <span v-if="omnibarType == ShrlType.textSnippet">
             <div class="field">
                 <label class="label has-text-light">Snippet Title</label>

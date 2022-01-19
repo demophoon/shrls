@@ -1,17 +1,11 @@
 <template>
     <div>
-        <table class="table is-fullwidth is-striped is-narrow is-hoverable">
-            <thead>
-                <tr>
-                    <th class="is-1">Actions</th>
-                    <th class="is-3">Alias</th>
-                    <th>Tags</th>
-                </tr>
-            </thead>
-            <tbody v-for="shrl in shrls">
-                <shrl-item v-bind:shrl='shrl'></shrl-item>
-            </tbody>
-        </table>
+
+        <div class="list has-visible-pointer-control has-overflow-ellipsis has-hoverable-list-items">
+            <span v-for="shrl in shrls">
+                <shrl-item v-bind:shrl="shrl"></shrl-item>
+            </span>
+        </div>
 
         <nav class="pagination">
             <a v-on:click="previousPage" v-bind:disabled="page <= 0" class="pagination-previous">Previous</a>
