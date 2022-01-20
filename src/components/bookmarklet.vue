@@ -97,7 +97,7 @@ export default {
             this.$el.append(s)
         },
         handleResponse(e) {
-            this.currentUrl = e.detail.shrl
+            this.currentUrl = this.shrlsServer + "/" + e.detail.info.alias
             copy(this.currentUrl)
         }
     },
