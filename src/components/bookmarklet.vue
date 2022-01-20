@@ -59,8 +59,10 @@ export default {
             currentUrl: "",
             screenshot: undefined,
             selection: "",
+            shrlsServer: this.shrlsServer,
         }
     },
+    props: ["shrlsServer"],
     computed: {
         screenshotDataUrl() {
             return this.screenshot !== undefined ? this.screenshot.toDataURL() : "";
@@ -90,7 +92,7 @@ export default {
         upload(type, data) {
             let s = document.createElement("script")
             let query = "?" + encodeURIComponent(type) + "=" + encodeURIComponent(data)
-            s.src = "http://localhost:8000/api/bookmarklet/new" + query
+            s.src = this.shrlsServer + "/api/bookmarklet/new" + query
             s.addEventListener('shrls-response', this.handleResponse)
             this.$el.append(s)
         },

@@ -7,6 +7,8 @@ require('html2canvas');
 require('copy-to-clipboard');
 
 (() => {
+    let u = new URL(document.currentScript.src)
+    let shrlsServer = u.protocol + "//" + u.host
     let bus_id = "data-shrls-modal"
     let event_bus = document.getElementById(bus_id)
     if (event_bus == undefined) {
@@ -16,9 +18,12 @@ require('copy-to-clipboard');
 
         new Vue({
             el: event_bus,
+            data: function() {
+                return {shrlsServer}
+            },
             components: {Bookmarklet},
             template: `<div id=` + bus_id + `>
-                <bookmarklet v-on:close="close"/>
+                <bookmarklet v-on:close="close" v-bind:shrlsServer="shrlsServer" />
             </div>`,
             methods: {
                 close() {
