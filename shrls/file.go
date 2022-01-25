@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -60,9 +59,7 @@ func fileUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	FileFromString(filepath)
+	url := FileFromString(filepath)
 
-	encoder := json.NewEncoder(w)
-	response := URLUpdateResponse{Status: "Success"}
-	encoder.Encode(response)
+	SuccessResponse(w, &url)
 }

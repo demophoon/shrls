@@ -33,11 +33,9 @@ func snippetUpload(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	decoder.Decode(&snippet)
-	uploadSnippet(snippet)
+	url := uploadSnippet(snippet)
 
-	encoder := json.NewEncoder(w)
-	response := URLUpdateResponse{Status: "Success"}
-	encoder.Encode(response)
+	SuccessResponse(w, &url)
 }
 
 func snippetGet(w http.ResponseWriter, r *http.Request) {

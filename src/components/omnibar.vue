@@ -26,7 +26,7 @@
                 <div class="field">
                     <label class="label has-text-light" v-if="omnibarType == ShrlType.textSnippet"></label>
                     <div class="control">
-                        <textarea autocomplete="off" class="has-fixed-size" placeholder="Paste URL / Snippet / File"
+                        <textarea autocomplete="off" class="has-fixed-size" :placeholder="placeholder"
                             v-model:paste="omnibar"
                             v-on:paste="parsePaste"
                             v-on:keydown.enter="omnibarNewline"
@@ -59,6 +59,7 @@
 
 <script>
 import { bus, ShrlType } from "../index.js"
+import copy from "copy-to-clipboard"
 
 function isValidHttpUrl(string) {
     string = string.toLowerCase()
@@ -82,6 +83,7 @@ export default {
             ShrlType,
             snippetTitle: "",
             omnibar: "",
+            notification: "",
         }
     },
     computed: {
@@ -91,6 +93,13 @@ export default {
             }
             return ShrlType.textSnippet
         },
+        placeholder() {
+            if (this.notification != "") {
+                setTimeout(() => { this.notification = "" }, 5000)
+                return this.notification
+            }
+            return "Paste URL / Snippet / File"
+        }
     },
     methods: {
         resetOmnibar: function() {
@@ -128,39 +137,53 @@ export default {
             let file = e.target.files[0];
             this.createUpload(file)
         },
+        copyAlias: function(alias) {
+            let url = document.location.protocol + "//" + document.location.host + "/" + alias
+            this.notification = "\"" + url + "\" copied to clipboard."
+            copy(url)
+        },
         // API posts
         createShrl: function(url) {
-            this.resetOmnibar()
             fetch("/api/shrl", {
                 method: "POST",
                 body: JSON.stringify({
                     location: url
                 })
-            }).then(() => {
+            }).then((d) => {
+                return d.json()
+            }).then((d) => {
+                this.copyAlias(d.shrl.alias)
                 bus.$emit("load-shrls")
+                this.resetOmnibar()
             })
         },
         createSnippet: function(title, paste) {
-            this.resetOmnibar()
             fetch("/api/snippet", {
                 method: "POST",
                 body: JSON.stringify({
                     title: title,
                     body: paste,
                 }),
-            }).then(() => {
+            }).then((d) => {
+                return d.json()
+            }).then((d) => {
+                this.copyAlias(d.shrl.alias)
                 bus.$emit("load-shrls")
+                this.resetOmnibar()
             })
         },
         createUpload: function(file) {
-            this.resetOmnibar()
             let fd = new FormData()
             fd.append("file", file)
             fetch("/api/upload", {
                 method: "POST",
                 body: fd,
-            }).then(() => {
+            }).then((d) => {
+                return d.json()
+            }).then((d) => {
+                this.copyAlias(d.shrl.alias)
                 bus.$emit("load-shrls")
+                this.resetOmnibar()
             })
         },
     }

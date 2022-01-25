@@ -3,3 +3,8 @@
 @import "./shrls.scss";
 @import "bulma/bulma.sass";
 @import "bulma-list/sass/bulma-list.sass";
+
+input::placeholder, textarea::placeholder {  
+    color: #535353;
+    opacity: 1;
+}
