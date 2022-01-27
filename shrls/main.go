@@ -86,6 +86,7 @@ func main() {
 	// Frontend
 	mux.HandleFunc(pat.Get("/"), defaultRedirect)
 	mux.HandleFunc(pat.Get("/:shrl"), resolveShrl)
+	mux.HandleFunc(pat.Get("/:shrl/:search"), resolveShrl)
 
 	// Admin
 	mux.Handle(pat.New("/admin/*"), admin_mux)

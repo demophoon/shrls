@@ -53,8 +53,10 @@ func defaultRedirect(w http.ResponseWriter, r *http.Request) {
 func shrlFromRequest(r *http.Request) (*URL, string, error) {
 	var ext string
 	shrl := pat.Param(r, "shrl")
+	search := pat.Param(r, "search")
 	parts := strings.Split(shrl, ".")
 	alias := parts[0]
+	fmt.Println(search)
 	if len(parts) > 1 {
 		ext = parts[len(parts)-1]
 	}
