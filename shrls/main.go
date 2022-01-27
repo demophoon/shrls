@@ -83,11 +83,6 @@ func main() {
 		admin_mux.Use(auth_middleware)
 	}
 
-	// Frontend
-	mux.HandleFunc(pat.Get("/"), defaultRedirect)
-	mux.HandleFunc(pat.Get("/:shrl"), resolveShrl)
-	mux.HandleFunc(pat.Get("/:shrl/:search"), resolveShrl)
-
 	// Admin
 	mux.Handle(pat.New("/admin/*"), admin_mux)
 	fs := http.FileServer(http.Dir(workdir + "/dist/"))
@@ -109,6 +104,11 @@ func main() {
 	// Snippets
 	api_mux.HandleFunc(pat.Post("/snippet"), snippetUpload)
 	api_mux.HandleFunc(pat.Get("/snippet/:snippet_id"), snippetGet)
+
+	// Frontend
+	mux.HandleFunc(pat.Get("/"), defaultRedirect)
+	mux.HandleFunc(pat.Get("/:shrl"), resolveShrl)
+	mux.HandleFunc(pat.Get("/:shrl/:search"), resolveShrl)
 
 	http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", Settings.Port), mux)
 }
