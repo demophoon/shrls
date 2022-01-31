@@ -1,0 +1,9 @@
+# List of hostnames to follow redirects before storing final resolved location
+# in SHRLS database
+resolveLocation:
+  - example.org
+
+# List of hostnames to strip query parameters from final URL before storing
+# location in SHRLS database
+stripQueryParams:
+  - example.org

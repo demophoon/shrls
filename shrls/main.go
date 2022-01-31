@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"goji.io/pat"
+	"gopkg.in/yaml.v3"
 
 	"github.com/goji/httpauth"
 	"goji.io"
@@ -25,6 +27,14 @@ type ShrlSettings struct {
 	MongoConnectionString string
 	AdminUsername         string
 	AdminPassword         string
+
+	SettingsFilepath      string
+	ResolveLocationHosts  []string `yaml:"resolveLocation"`
+	StripQueryParamsHosts []string `yaml:"stripQueryParams"`
+}
+
+func (s *ShrlSettings) Parse(data []byte) error {
+	return yaml.Unmarshal(data, s)
 }
 
 var collection *mongo.Collection
@@ -49,6 +59,17 @@ func init() {
 		MongoConnectionString: os.Getenv("MONGO_URI"),
 		AdminUsername:         os.Getenv("SHRLS_USERNAME"),
 		AdminPassword:         os.Getenv("SHRLS_PASSWORD"),
+		SettingsFilepath:      os.Getenv("SHRLS_SETTINGS_FILE"),
+	}
+
+	if Settings.SettingsFilepath != "" {
+		b, err := ioutil.ReadFile(Settings.SettingsFilepath)
+		if err != nil {
+			log.Fatal(fmt.Sprintf("Error reading settings file %s, %s", Settings.SettingsFilepath, err))
+			os.Exit(1)
+		}
+
+		Settings.Parse(b)
 	}
 
 	// Init Mongo
