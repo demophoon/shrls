@@ -210,7 +210,7 @@ func urlNew(w http.ResponseWriter, r *http.Request) {
 		ErrorResponse(w, nil, http.StatusBadRequest)
 		return
 	}
-	createUrl(&shrl)
+	shrl.Create()
 
 	SuccessResponse(w, &shrl)
 }

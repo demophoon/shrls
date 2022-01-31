@@ -17,7 +17,7 @@ func FileFromString(uploadPath string) URL {
 	shrl := NewURL()
 	shrl.UploadLocation = uploadPath
 	shrl.Type = UploadedFile
-	createUrl(&shrl)
+	shrl.Create()
 	return shrl
 }
 

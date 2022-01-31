@@ -24,7 +24,7 @@ func uploadSnippet(snippet SnippetRequest) URL {
 	shrl.SnippetTitle = snippet.SnippetTitle
 	shrl.Snippet = snippet.SnippetBody
 	shrl.Type = TextSnippet
-	createUrl(&shrl)
+	shrl.Create()
 	return shrl
 }
 

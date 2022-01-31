@@ -51,6 +51,11 @@ func (u URL) Delete() error {
 	return err
 }
 
+func (u *URL) Create() error {
+	_, err := collection.InsertOne(ctx, u)
+	return err
+}
+
 func (u URL) IncrementViews() error {
 	_, err := collection.UpdateByID(ctx, u.ID, bson.D{
 		{"$inc", bson.D{{"views", 1}}},
@@ -150,13 +155,8 @@ func deleteUrl(url_id string) error {
 func ShrlFromString(url string) URL {
 	shrl := NewURL()
 	shrl.Location = url
-	createUrl(&shrl)
+	shrl.Create()
 	return shrl
-}
-
-func createUrl(url *URL) error {
-	_, err := collection.InsertOne(ctx, url)
-	return err
 }
 
 type PaginationParameters struct {
