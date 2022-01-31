@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -51,7 +53,15 @@ func (u URL) Delete() error {
 	return err
 }
 
+func (u URL) Update() error {
+	_, err := collection.UpdateByID(ctx, u.ID, bson.D{
+		{"$set", u},
+	})
+	return err
+}
+
 func (u *URL) Create() error {
+	u.Cleanse()
 	_, err := collection.InsertOne(ctx, u)
 	return err
 }
@@ -89,6 +99,85 @@ func (u URL) FriendlyAlias() string {
 	strs = append(strs, Settings.BaseURL)
 	strs = append(strs, u.Alias)
 	return strings.Join(strs, "/")
+}
+
+func (u *URL) ResolveLocation() error {
+	nextUrl := u.Location
+
+	var i int
+	for i < 25 {
+		client := &http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		}
+
+		resp, err := client.Head(nextUrl)
+		if err != nil {
+			return err
+		}
+
+		if resp.StatusCode >= 300 && resp.StatusCode < 400 {
+			nextUrl = resp.Header.Get("Location")
+			i += 1
+		} else {
+			break
+		}
+	}
+
+	u.Location = nextUrl
+	return nil
+}
+
+func (u *URL) StripParams() error {
+	location, err := url.Parse(u.Location)
+	if err != nil {
+		return err
+	}
+	new_location := url.URL{
+		Scheme: location.Scheme,
+		User:   location.User,
+		Host:   location.Host,
+		Path:   location.Path,
+	}
+
+	u.Location = new_location.String()
+	return nil
+}
+
+func (u *URL) Cleanse() {
+	if u.Type != ShortenedUrl {
+		return
+	}
+
+	ur, err := url.Parse(u.Location)
+	if err != nil {
+		return
+	}
+
+	resolveLocation := false
+	for _, v := range Settings.ResolveLocationHosts {
+		resolveLocation = strings.ToLower(ur.Host) == strings.ToLower(v)
+		if resolveLocation {
+			break
+		}
+	}
+
+	stripParams := false
+	for _, v := range Settings.StripQueryParamsHosts {
+		stripParams = strings.ToLower(ur.Host) == strings.ToLower(v)
+		if stripParams {
+			break
+		}
+	}
+
+	if resolveLocation {
+		u.ResolveLocation()
+	}
+
+	if stripParams {
+		u.StripParams()
+	}
 }
 
 type URLs struct {
