@@ -72,7 +72,7 @@ func init() {
 		Settings.Parse(b)
 	}
 
-	fmt.Printf("Loaded settings: %#v", Settings)
+	log.Printf("Loaded settings: %#v", Settings)
 
 	// Init Mongo
 	clientOptions := options.Client().ApplyURI(Settings.MongoConnectionString)
