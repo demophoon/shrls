@@ -1,5 +1,6 @@
 # Go Shrls
 FROM golang:1.16-alpine AS builder
+RUN apk --no-cache add ca-certificates
 WORKDIR /app
 
 COPY ./shrls/go.mod ./
@@ -19,6 +20,7 @@ RUN npm run build-prod
 
 # Final Artifact
 FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /app/shrls ./
 COPY --from=frontend /app/dist/ /dist/
 
