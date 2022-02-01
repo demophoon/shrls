@@ -72,6 +72,8 @@ func init() {
 		Settings.Parse(b)
 	}
 
+	fmt.Printf("Loaded settings: %#v", Settings)
+
 	// Init Mongo
 	clientOptions := options.Client().ApplyURI(Settings.MongoConnectionString)
 	client, err := mongo.Connect(ctx, clientOptions)
