@@ -7,3 +7,18 @@ resolveLocation:
 # location in SHRLS database
 stripQueryParams:
   - example.org
+
+
+# Detect terminals with curl/wget user-agents and display a custom message to
+# them on default redirects.
+terminalRedirect: true
+terminalRedirectString: |
+  Hello visitor!
+
+  This is a url shortener service and we've detected that you are using a
+  terminal to interface with it.
+
+  You can curl any url and append `.qr` to display a QR code in the terminal.
+
+  Curl with a url passed into the --data or --data-binary flags to create a
+  short url.

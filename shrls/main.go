@@ -28,9 +28,11 @@ type ShrlSettings struct {
 	AdminUsername         string
 	AdminPassword         string
 
-	SettingsFilepath      string
-	ResolveLocationHosts  []string `yaml:"resolveLocation"`
-	StripQueryParamsHosts []string `yaml:"stripQueryParams"`
+	SettingsFilepath       string
+	ResolveLocationHosts   []string `yaml:"resolveLocation"`
+	StripQueryParamsHosts  []string `yaml:"stripQueryParams"`
+	TerminalRedirect       bool     `yaml:"terminalRedirect"`
+	TerminalRedirectString string   `yaml:"terminalRedirectString"`
 }
 
 func (s *ShrlSettings) Parse(data []byte) error {
@@ -60,6 +62,7 @@ func init() {
 		AdminUsername:         os.Getenv("SHRLS_USERNAME"),
 		AdminPassword:         os.Getenv("SHRLS_PASSWORD"),
 		SettingsFilepath:      os.Getenv("SHRLS_SETTINGS_FILE"),
+		TerminalRedirect:      false,
 	}
 
 	if Settings.SettingsFilepath != "" {

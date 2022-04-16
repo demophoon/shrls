@@ -57,6 +57,10 @@ func isTerminal(r *http.Request) bool {
 }
 
 func defaultRedirect(w http.ResponseWriter, r *http.Request) {
+	if isTerminal(r) && Settings.TerminalRedirect && Settings.TerminalRedirectString != "" {
+		w.Write([]byte(Settings.TerminalRedirectString + "\n"))
+		return
+	}
 	http.Redirect(w, r, Settings.DefaultRedirect, http.StatusTemporaryRedirect)
 }
 
