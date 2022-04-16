@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gabriel-vasile/mimetype"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
@@ -206,18 +207,27 @@ func urlPrintInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func curlNew(w http.ResponseWriter, r *http.Request) {
-	b, err := io.ReadAll(r.Body)
-	body := string(b)
-	if err != nil {
-		w.Write([]byte(err.Error()))
-	}
+	b, _ := io.ReadAll(r.Body)
+	mtype := mimetype.Detect(b)
+
 	var shrl URL
-	if strings.HasPrefix(strings.ToLower(body), "http") && !strings.ContainsAny(body, "\n") {
-		shrl = ShrlFromString(body)
+	if mtype.Is("text/plain") {
+		body := string(b)
+		if strings.HasPrefix(strings.ToLower(body), "http") && !strings.ContainsAny(body, "\n") {
+			shrl = ShrlFromString(body)
+		} else {
+			shrl = uploadSnippet(SnippetRequest{
+				SnippetBody: body,
+			})
+		}
 	} else {
-		shrl = uploadSnippet(SnippetRequest{
-			SnippetBody: body,
-		})
+		s, err := URLFromFile(b)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Error"))
+			return
+		}
+		shrl = s
 	}
 
 	baseUrl := r.Host + "/"
@@ -308,8 +318,12 @@ Shorten a URL:
 Upload Text Snippet:
   curl -su <username> --data "<Text>" ` + host + `
 
+  cat file.txt | curl -su <username> -d@- ` + host + `
+
 Upload File:
   curl -su <username> --data-binary "@filename" ` + host + `
+
+  cat file.txt | curl -su <username> --data-binary @- ` + host + `
 
 `
 	} else if isUA(r, "wget") {

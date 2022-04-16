@@ -1,15 +1,17 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 
+	"github.com/gabriel-vasile/mimetype"
 	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 )
 
@@ -21,8 +23,35 @@ func FileFromString(uploadPath string) URL {
 	return shrl
 }
 
+func URLFromFile(file []byte) (URL, error) {
+	mtype := mimetype.Detect(file)
+
+	err := os.MkdirAll(Settings.UploadDirectory, os.ModePerm)
+	if err != nil {
+		return URL{}, err
+	}
+
+	file_uuid_hyphen, err := uuid.New()
+	if err != nil {
+		return URL{}, err
+	}
+	str := hex.EncodeToString(file_uuid_hyphen[:])
+	file_uuid := strings.Replace(str, "-", "", -1)
+	filename := fmt.Sprintf("%s%s", file_uuid, mtype.Extension())
+	filepath := path.Join(Settings.UploadDirectory, filename)
+
+	err = ioutil.WriteFile(filepath, file, os.ModePerm)
+	if err != nil {
+		return URL{}, err
+	}
+
+	url := FileFromString(filepath)
+
+	return url, nil
+}
+
 func fileUpload(w http.ResponseWriter, r *http.Request) {
-	file, fileHeader, err := r.FormFile("file")
+	file, _, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -30,36 +59,17 @@ func fileUpload(w http.ResponseWriter, r *http.Request) {
 
 	defer file.Close()
 
-	err = os.MkdirAll(Settings.UploadDirectory, os.ModePerm)
-	if err != nil {
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, file); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	file_uuid_hyphen, err := uuid.New()
+	url, err := URLFromFile(buf.Bytes())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	str := hex.EncodeToString(file_uuid_hyphen[:])
-	file_uuid := strings.Replace(str, "-", "", -1)
-	filename := fmt.Sprintf("%s%s", file_uuid, filepath.Ext(fileHeader.Filename))
-	filepath := path.Join(Settings.UploadDirectory, filename)
-	dst, err := os.Create(filepath)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	defer dst.Close()
-
-	_, err = io.Copy(dst, file)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	url := FileFromString(filepath)
 
 	SuccessResponse(w, &url)
 }
