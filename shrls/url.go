@@ -83,6 +83,15 @@ func (u URL) ToQR(w io.Writer) error {
 	return nil
 }
 
+func (u URL) toTextQR(w io.Writer) error {
+	result, err := qrcode.New(u.Location, qrcode.Medium)
+	if err != nil {
+		return err
+	}
+	w.Write([]byte(result.ToSmallString(false)))
+	return nil
+}
+
 func (u URL) ToText(w io.Writer) {
 	switch u.Type {
 	case ShortenedUrl:
@@ -177,6 +186,19 @@ func (u *URL) Cleanse() {
 
 	if stripParams {
 		u.StripParams()
+	}
+}
+
+func (u *URL) Redirect(w http.ResponseWriter, r *http.Request) {
+	switch u.Type {
+	case ShortenedUrl:
+		http.Redirect(w, r, u.Location, http.StatusPermanentRedirect)
+
+	case UploadedFile:
+		writeFile(u, w)
+
+	case TextSnippet:
+		w.Write([]byte(u.Snippet))
 	}
 }
 

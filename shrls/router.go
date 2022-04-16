@@ -46,6 +46,15 @@ func StatusResponse(w http.ResponseWriter, url *URL, status string, code int) {
 	encoder.Encode(response)
 }
 
+func isUA(r *http.Request, agent string) bool {
+	ua := strings.ToLower(r.UserAgent())
+	return strings.HasPrefix(ua, strings.ToLower(agent))
+}
+
+func isTerminal(r *http.Request) bool {
+	return isUA(r, "curl") || isUA(r, "wget")
+}
+
 func defaultRedirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, Settings.DefaultRedirect, http.StatusTemporaryRedirect)
 }
@@ -86,21 +95,16 @@ func resolveShrl(w http.ResponseWriter, r *http.Request) {
 	go shrl.IncrementViews()
 
 	switch ext {
-	case "qr":
-		shrl.ToQR(w)
-	case "txt":
+	case "qr", "qrcode":
+		if isTerminal(r) {
+			shrl.toTextQR(w)
+		} else {
+			shrl.ToQR(w)
+		}
+	case "txt", "text":
 		shrl.ToText(w)
 	default:
-		switch shrl.Type {
-		case ShortenedUrl:
-			http.Redirect(w, r, shrl.Location, http.StatusPermanentRedirect)
-
-		case UploadedFile:
-			writeFile(shrl, w)
-
-		case TextSnippet:
-			w.Write([]byte(shrl.Snippet))
-		}
+		shrl.Redirect(w, r)
 	}
 }
 
@@ -201,6 +205,26 @@ func urlPrintInfo(w http.ResponseWriter, r *http.Request) {
 	w.Write(output)
 }
 
+func curlNew(w http.ResponseWriter, r *http.Request) {
+	b, err := io.ReadAll(r.Body)
+	body := string(b)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	}
+	var shrl URL
+	if strings.HasPrefix(strings.ToLower(body), "http") && !strings.ContainsAny(body, "\n") {
+		shrl = ShrlFromString(body)
+	} else {
+		shrl = uploadSnippet(SnippetRequest{
+			SnippetBody: body,
+		})
+	}
+
+	baseUrl := r.Host + "/"
+
+	w.Write([]byte(baseUrl + shrl.Alias + "\n"))
+}
+
 func urlNew(w http.ResponseWriter, r *http.Request) {
 	shrl := NewURL()
 	decoder := json.NewDecoder(r.Body)
@@ -266,4 +290,35 @@ func urlDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	SuccessResponse(w, url)
+}
+
+func UnauthorizedWarning(w http.ResponseWriter, r *http.Request) {
+
+	host := r.Host
+
+	unauthorized_message := "Unauthorized"
+	if isUA(r, "curl") {
+		unauthorized_message = `
+It looks like you are trying to use the CURL api.
+Here is a little documentation on how to do so!
+------------------------------------------------------------
+Shorten a URL:
+  curl -su <username> --data "<url>" ` + host + `
+
+Upload Text Snippet:
+  curl -su <username> --data "<Text>" ` + host + `
+
+Upload File:
+  curl -su <username> --data-binary "@filename" ` + host + `
+
+`
+	} else if isUA(r, "wget") {
+		unauthorized_message = `
+wget usage
+------
+wget -qO- --post-data "<url>"
+`
+	}
+	w.WriteHeader(401)
+	w.Write([]byte(unauthorized_message))
 }

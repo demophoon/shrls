@@ -99,11 +99,18 @@ func main() {
 	mux := goji.NewMux()
 	admin_mux := goji.SubMux()
 	api_mux := goji.SubMux()
+	curl_api_mux := goji.SubMux()
 
 	if Settings.AdminUsername != "" && Settings.AdminPassword != "" {
-		auth_middleware := httpauth.SimpleBasicAuth(Settings.AdminUsername, Settings.AdminPassword)
+		authOpts := httpauth.AuthOptions{
+			User:                Settings.AdminUsername,
+			Password:            Settings.AdminPassword,
+			UnauthorizedHandler: http.HandlerFunc(UnauthorizedWarning),
+		}
+		auth_middleware := httpauth.BasicAuth(authOpts)
 		api_mux.Use(auth_middleware)
 		admin_mux.Use(auth_middleware)
+		curl_api_mux.Use(auth_middleware)
 	}
 
 	// Admin
@@ -119,6 +126,7 @@ func main() {
 	api_mux.HandleFunc(pat.Delete("/shrl/:shrl_id"), urlDelete)
 	api_mux.HandleFunc(pat.Post("/shrl"), urlNew)
 
+	// Bookmarklet API
 	api_mux.HandleFunc(pat.Get("/bookmarklet/new"), bookmarkletNew)
 
 	// File Uploads
@@ -132,6 +140,10 @@ func main() {
 	mux.HandleFunc(pat.Get("/"), defaultRedirect)
 	mux.HandleFunc(pat.Get("/:shrl"), resolveShrl)
 	mux.HandleFunc(pat.Get("/:shrl/:search"), resolveShrl)
+
+	// Curl API
+	mux.Handle(pat.New("/*"), curl_api_mux)
+	curl_api_mux.HandleFunc(pat.Post("/"), curlNew)
 
 	http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", Settings.Port), mux)
 }
