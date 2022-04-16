@@ -75,7 +75,11 @@ func (u URL) IncrementViews() error {
 }
 
 func (u URL) ToQR(w io.Writer) error {
-	result, err := qrcode.New(u.Location, qrcode.Medium)
+	location := u.Location
+	if u.Type != ShortenedUrl {
+		location = Settings.BaseURL + "/" + u.Alias
+	}
+	result, err := qrcode.New(location, qrcode.Medium)
 	if err != nil {
 		return err
 	}
@@ -84,11 +88,16 @@ func (u URL) ToQR(w io.Writer) error {
 }
 
 func (u URL) toTextQR(w io.Writer) error {
-	result, err := qrcode.New(u.Location, qrcode.Medium)
+	location := u.Location
+	if u.Type != ShortenedUrl {
+		location = Settings.BaseURL + "/" + u.Alias
+	}
+	result, err := qrcode.New(location, qrcode.Medium)
 	if err != nil {
 		return err
 	}
 	w.Write([]byte(result.ToSmallString(false)))
+	w.Write([]byte(fmt.Sprintf("\nScan the code above or visit %s in a browser.\n", location)))
 	return nil
 }
 
