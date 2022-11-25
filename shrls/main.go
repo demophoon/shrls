@@ -135,11 +135,15 @@ func main() {
 	// File Uploads
 	api_mux.HandleFunc(pat.Post("/upload"), fileUpload)
 
+	// Health
+	api_mux.HandleFunc(pat.Get("/health"), healthCheck)
+
 	// Snippets
 	api_mux.HandleFunc(pat.Post("/snippet"), snippetUpload)
 	api_mux.HandleFunc(pat.Get("/snippet/:snippet_id"), snippetGet)
 
 	// Frontend
+	mux.HandleFunc(pat.Get("/.well-known/webfinger"), webfinger)
 	mux.HandleFunc(pat.Get("/"), defaultRedirect)
 	mux.HandleFunc(pat.Get("/:shrl"), resolveShrl)
 	mux.HandleFunc(pat.Get("/:shrl/:search"), resolveShrl)

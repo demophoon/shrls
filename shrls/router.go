@@ -97,6 +97,10 @@ func resolveShrl(w http.ResponseWriter, r *http.Request) {
 		defaultRedirect(w, r)
 		return
 	}
+	if shrl.Alias == ".well-known" {
+		webfinger(w, r)
+		return
+	}
 	go shrl.IncrementViews()
 
 	switch ext {
@@ -340,3 +344,57 @@ wget -qO- --post-data "<url>"
 	w.WriteHeader(401)
 	w.Write([]byte(unauthorized_message))
 }
+
+func webfinger(w http.ResponseWriter, r *http.Request) {
+	//acct := r.URL.Query().Get("resource")
+	type wfLink struct {
+		Rel      string `json:"rel"`
+		Type     string `json:"type"`
+		Href     string `json:"href"`
+		Template string `json:"href"`
+	}
+	type webfingerResponse struct {
+		Subject string   `json:"subject"`
+		Aliases []string `json:"aliases"`
+		Links   []wfLink `json:"aliases"`
+	}
+	wf := webfingerResponse{
+		Subject: "acct:demophoon@mastodon.brittg.com",
+		Aliases: []string{
+			"https://mastodon.brittg.com/@demophoon",
+			"https://mastodon.brittg.com/users/demophoon",
+		},
+		Links: []wfLink{
+			{
+				Rel:  "http://webfinger.net/rel/profile-page",
+				Type: "text/html",
+				Href: "https://mastodon.brittg.com/@demophoon",
+			},
+			{
+				Rel:  "self",
+				Type: "application/activity+json",
+				Href: "https://mastodon.brittg.com/users/demophoon",
+			},
+			{
+				Rel:      "http://ostatus.org/schema/1.0/subscribe",
+				Template: "https://mastodon.brittg.com/authorize_interaction?uri={uri}",
+			},
+		},
+	}
+	output, err := json.Marshal(wf)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(genericError))
+		return
+	}
+	w.Write(output)
+}
+
+func healthCheck(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(healthcheckSuccess))
+}
+
+const (
+	genericError       string = "An error occurred during the request"
+	healthcheckSuccess string = "healthy"
+)
