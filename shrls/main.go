@@ -65,7 +65,7 @@ func init() {
 
 	//Settings.MongoConnectionString = fmt.Sprintf("mongodb://%s:%s@10.211.55.6/shrls", Settings.MongoUsername, Settings.MongoPassword)
 
-	fmt.Printf("settings: %v\n", Settings)
+	fmt.Printf("settings: %v#\n", Settings)
 
 	// Init Mongo
 	clientOptions := options.Client().ApplyURI(Settings.MongoConnectionString)
