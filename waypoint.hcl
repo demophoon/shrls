@@ -29,8 +29,11 @@ app "shrls" {
   }
 
   deploy {
-    use "nomad" {
+    use "kubernetes" {
       service_port = 8000
     }
+    #use "nomad" {
+    #  service_port = 8000
+    #}
   }
 }
