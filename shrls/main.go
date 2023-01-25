@@ -63,7 +63,7 @@ func init() {
 		TerminalRedirect:      false,
 	}
 
-	Settings.MongoConnectionString = fmt.Sprintf("mongodb://%s:%s@10.211.55.6/shrls", Settings.MongoUsername, Settings.MongoPassword)
+	//Settings.MongoConnectionString = fmt.Sprintf("mongodb://%s:%s@10.211.55.6/shrls", Settings.MongoUsername, Settings.MongoPassword)
 
 	fmt.Printf("settings: %v\n", Settings)
 

@@ -1,15 +1,19 @@
 project = "shrls"
 
 config {
-  env = {
-    "MONGO_USERNAME" = dynamic("vault", {
+  internal = {
+    username = dynamic("vault", {
       path = "database/creds/prod_rw"
       key = "username"
     })
-    "MONGO_PASSWORD" = dynamic("vault", {
+    password = dynamic("vault", {
       path = "database/creds/prod_rw"
       key = "password"
     })
+  }
+
+  env = {
+    "MONGO_URI" = "mongodb://${config.internal.username}:${config.internal.password}@10.211.55.6:27017/shrls"
   }
 }
 
