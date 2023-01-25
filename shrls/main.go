@@ -3,10 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
 
 	"log"
 
@@ -24,6 +22,8 @@ type ShrlSettings struct {
 	Port                  int
 	DefaultRedirect       string
 	UploadDirectory       string
+	MongoUsername         string
+	MongoPassword         string
 	MongoConnectionString string
 	AdminUsername         string
 	AdminPassword         string
@@ -46,18 +46,16 @@ var Settings ShrlSettings
 
 func init() {
 	// Init Settings
-	port, err := strconv.Atoi(os.Getenv("SHRLS_PORT"))
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Invalid Port: %s", err))
-		os.Exit(1)
-	}
+	port := 8000
 
 	Settings = ShrlSettings{
 		BaseURL:         os.Getenv("SHRLS_BASE_URL"),
 		Port:            port,
 		DefaultRedirect: os.Getenv("DEFAULT_REDIRECT"),
-		UploadDirectory: os.Getenv("UPLOAD_DIRECTORY"),
+		UploadDirectory: "/local",
 		// mongodb://mongo:example@localhost:27017
+		MongoUsername:         os.Getenv("MONGO_USERNAME"),
+		MongoPassword:         os.Getenv("MONGO_PASSWORD"),
 		MongoConnectionString: os.Getenv("MONGO_URI"),
 		AdminUsername:         os.Getenv("SHRLS_USERNAME"),
 		AdminPassword:         os.Getenv("SHRLS_PASSWORD"),
@@ -65,17 +63,9 @@ func init() {
 		TerminalRedirect:      false,
 	}
 
-	if Settings.SettingsFilepath != "" {
-		b, err := ioutil.ReadFile(Settings.SettingsFilepath)
-		if err != nil {
-			log.Fatal(fmt.Sprintf("Error reading settings file %s, %s", Settings.SettingsFilepath, err))
-			os.Exit(1)
-		}
+	Settings.MongoConnectionString = fmt.Sprintf("mongodb://%s:%s@10.211.55.6/shrls", Settings.MongoUsername, Settings.MongoPassword)
 
-		Settings.Parse(b)
-	}
-
-	log.Printf("Loaded settings: %#v", Settings)
+	fmt.Printf("settings: %v\n", Settings)
 
 	// Init Mongo
 	clientOptions := options.Client().ApplyURI(Settings.MongoConnectionString)
