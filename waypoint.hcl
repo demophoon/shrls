@@ -36,7 +36,7 @@ app "shrls" {
     #  service_port = 8000
     #}
     use "kubernetes" {
-      service_port = 8000
+      service_port = 80
       pod {
         security_context {
           run_as_user = 1000
