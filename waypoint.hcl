@@ -35,6 +35,11 @@ app "shrls" {
     #}
     use "kubernetes" {
       service_port = 8000
+      pod {
+        security_context {
+          run_as_user = 1000
+        }
+      }
     }
     #use "nomad" {
     #  service_port = 8000
