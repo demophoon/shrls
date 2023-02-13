@@ -20,7 +20,9 @@ config {
 
 app "shrls" {
   build {
-    use "docker" {}
+    use "docker-pull" {
+      image = "nginx"
+    }
     registry {
       use "docker" {
         image = "registry.services.demophoon.com/demophoon/shrls-test"
