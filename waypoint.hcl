@@ -22,6 +22,7 @@ app "shrls" {
   build {
     use "docker-pull" {
       image = "nginx"
+      tag = "latest"
     }
     registry {
       use "docker" {
