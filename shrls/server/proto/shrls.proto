@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package shrls;
+
+option go_package = "server/gen";
+
+// ============================================
+// Shrls service
+// ============================================
+service Shrls {
+	rpc GetShrl(GetShrlRequest) returns (GetShrlResponse);
+}
+
+// ========================================
+// Server Methods
+// ========================================
+message GetShrlRequest {
+	Ref.ShortURL shrl = 1;
+}
+message GetShrlResponse {
+	ShortURL shrl = 1;
+}
+
+// ========================================
+// References
+// ========================================
+message Ref {
+	// Reference ShortURL
+	message ShortURL {
+		oneof ref {
+			string id = 1;
+			string alias = 2;
+		}
+	}
+}
+
+// ========================================
+// Objects
+// ========================================
+// Shortened Urls
+message ShortURL {
+	enum ShortURLType {
+		LINK = 0;
+		UPLOAD = 1;
+		SNIPPET = 2;
+	}
+
+	string       id = 1; // External ID for ShortURL
+	ShortURLType type = 2; // ShortURL type
+
+	string       stub = 3; // URL stub
+	ExpandedURL  content = 4; // Expanded destination
+}
+
+// Text snippets
+message Snippet {
+	string title = 1;
+	bytes body = 2;
+}
+
+// Url Redirects
+message Redirect {
+	string url = 1;
+	bytes favicon = 2;
+}
+
+message ExpandedURL {
+	oneof content {
+		Redirect url = 1;
+		bytes    file = 2;
+		Snippet  snippet = 3;
+	}
+}
