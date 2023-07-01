@@ -1,0 +1,178 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "shrls.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Shrls"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/shrl": {
+      "get": {
+        "operationId": "Shrls_GetShrl",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/shrlsGetShrlResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "shrl.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "shrl.alias",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Shrls"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ShortURLShortURLType": {
+      "type": "string",
+      "enum": [
+        "LINK",
+        "UPLOAD",
+        "SNIPPET"
+      ],
+      "default": "LINK"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "shrlsExpandedURL": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "$ref": "#/definitions/shrlsRedirect"
+        },
+        "file": {
+          "type": "string",
+          "format": "byte"
+        },
+        "snippet": {
+          "$ref": "#/definitions/shrlsSnippet"
+        }
+      }
+    },
+    "shrlsGetShrlResponse": {
+      "type": "object",
+      "properties": {
+        "shrl": {
+          "$ref": "#/definitions/shrlsShortURL"
+        }
+      }
+    },
+    "shrlsRedirect": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "favicon": {
+          "type": "string",
+          "format": "byte"
+        }
+      },
+      "title": "Url Redirects"
+    },
+    "shrlsRefShortURL": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "alias": {
+          "type": "string"
+        }
+      },
+      "title": "Reference ShortURL"
+    },
+    "shrlsShortURL": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "External ID for ShortURL"
+        },
+        "type": {
+          "$ref": "#/definitions/ShortURLShortURLType",
+          "title": "ShortURL type"
+        },
+        "stub": {
+          "type": "string",
+          "title": "URL stub"
+        },
+        "content": {
+          "$ref": "#/definitions/shrlsExpandedURL",
+          "title": "Expanded destination"
+        }
+      },
+      "title": "========================================\nObjects\n========================================\nShortened Urls"
+    },
+    "shrlsSnippet": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string",
+          "format": "byte"
+        }
+      },
+      "title": "Text snippets"
+    }
+  }
+}

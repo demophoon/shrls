@@ -22,8 +22,7 @@ in
       impl
       iferr
 
-      protobuf
-      protoc-gen-go
+      buf
     ];
     shellHook = ''
     export GOPATH=$(pwd)/.gopath

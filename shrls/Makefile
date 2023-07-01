@@ -1,6 +1,6 @@
 .PHONY: gen/server
 gen/server:
-	go generate ./server
+	buf generate
 
 .PHONY: bin
 bin:
