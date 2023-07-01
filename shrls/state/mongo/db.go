@@ -11,14 +11,13 @@ type MongoDBState struct {
 	client *mongo.Client
 }
 
-func (s *MongoDBState) Init(conn string) error {
+func (s MongoDBState) Init(conn string) error {
 	ctx := context.TODO()
-
 	options.Client().ApplyURI(conn)
-	client, err := mongo.Connect(ctx)
+	c, err := mongo.Connect(ctx)
 	if err != nil {
 		return err
 	}
-	s.client = client
+	s.client = c
 	return nil
 }

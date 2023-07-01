@@ -1,11 +1,20 @@
 package service
 
 import (
-	log "github.com/sirupsen/logrus"
+	"context"
+	"flag"
+	"log"
+	"net/http"
+
 	"github.com/spf13/viper"
 
 	shrls "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server"
+	gw "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen/gateway"
 	mongostate "gitlab.cascadia.demophoon.com/demophoon/go-shrls/state/mongo"
+
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Service struct {
@@ -13,9 +22,31 @@ type Service struct {
 	state  *shrls.ServerState
 }
 
+var (
+	// command-line options:
+	// gRPC server endpoint
+	grpcServerEndpoint = flag.String("grpc-server-endpoint", "localhost:9090", "gRPC server endpoint")
+)
+
 func (s *Service) Run() error {
-	log.Info("Server running: ", viper.Get("port"))
-	return nil
+	//log.Info("Server running: ", viper.Get("port"))
+
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Register gRPC server endpoint
+	// Note: Make sure the gRPC server is running properly and accessible
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+
+	err := gw.RegisterShrlsHandlerFromEndpoint(ctx, mux, *grpcServerEndpoint, opts)
+	if err != nil {
+		return err
+	}
+
+	// Start HTTP server (and proxy calls to gRPC server endpoint)
+	return http.ListenAndServe(":8081", mux)
 }
 
 func (s *Service) SetState(state shrls.ServerState) {
@@ -36,9 +67,12 @@ func New() Service {
 
 	// Set ServerState
 	mongo_uri := viper.GetString("mongo_uri")
-	var mongo *mongostate.MongoDBState
-	mongo.Init(mongo_uri)
-	s.SetState(mongo)
+	var mongo mongostate.MongoDBState
+	err := mongo.Init(mongo_uri)
+	if err != nil {
+		log.Fatal("Couldn't connect to Mongo")
+	}
+	s.SetState(&mongo)
 
 	return s
 }
