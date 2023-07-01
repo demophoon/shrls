@@ -12,7 +12,12 @@ func (s *MongoDBState) GetShrl(ctx context.Context, ref pb.Ref_ShortURL) (pb.Sho
 		Type: 0,
 		Stub: "",
 		Content: &pb.ExpandedURL{
-			Content: nil,
+			Content: &pb.ExpandedURL_Url{
+				Url: &pb.Redirect{
+					Url:     "",
+					Favicon: []byte{},
+				},
+			},
 		},
 	}, nil
 }

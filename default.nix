@@ -23,6 +23,7 @@ in
       iferr
 
       buf
+      grpcurl
     ];
     shellHook = ''
     export GOPATH=$(pwd)/.gopath

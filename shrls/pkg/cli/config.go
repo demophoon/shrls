@@ -10,6 +10,7 @@ func initConfig() {
 	setDefaults()
 
 	log.SetFormatter(&log.JSONFormatter{})
+	log.SetLevel(log.TraceLevel)
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -18,7 +19,7 @@ func initConfig() {
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Warn("no config file found.")
+		log.Warn("No config file found, using defaults.")
 	}
 }
 
@@ -27,6 +28,9 @@ func setDefaults() {
 
 	viper.BindEnv("port")
 	viper.SetDefault("port", 3000)
+
+	viper.BindEnv("grpc_port")
+	viper.SetDefault("grpc_port", 3001)
 
 	viper.BindEnv("default_redirect")
 
