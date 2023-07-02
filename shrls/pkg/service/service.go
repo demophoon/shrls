@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"net"
 	"net/http"
 	"sync"
@@ -13,6 +14,8 @@ import (
 	shrls "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server"
 	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
 	gw "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen/gateway"
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/static"
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/service"
 	mongostate "gitlab.cascadia.demophoon.com/demophoon/go-shrls/state/mongo"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -21,12 +24,12 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-type Service struct {
+type ShrlsService struct {
 	server *shrls.ServerHandler
 	state  *shrls.ServerState
 }
 
-func (s *Service) Run() error {
+func (s *ShrlsService) Run() error {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -45,7 +48,11 @@ func (s *Service) Run() error {
 	return nil
 }
 
-func (s Service) startHttpServer() error {
+func (s ShrlsService) Redirect(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "http://localhost:3030/admin", http.StatusTemporaryRedirect)
+}
+
+func (s ShrlsService) startHttpServer() error {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -61,12 +68,25 @@ func (s Service) startHttpServer() error {
 		return err
 	}
 
+	// Add static file assets
+	sub, err := fs.Sub(static.Content, "dist")
+	if err != nil {
+		panic(err)
+	}
+	fs := http.FileServer(http.FS(sub))
+
 	// Start HTTP server (and proxy calls to gRPC server endpoint)
 	log.Info(fmt.Sprintf("Starting HTTP Server: %d", viper.GetInt("port")))
-	return http.ListenAndServe(fmt.Sprintf(":%d", viper.GetInt("port")), mux)
+
+	main := http.NewServeMux()
+	main.Handle("/admin/", http.StripPrefix("/admin/", fs))
+	main.Handle("/v1/", mux)
+	main.HandleFunc("/", s.Redirect)
+
+	return http.ListenAndServe(fmt.Sprintf(":%d", viper.GetInt("port")), main)
 }
 
-func (s Service) startGRpcServer() error {
+func (s ShrlsService) startGRpcServer() error {
 	port := viper.GetInt("grpc_port")
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
 	if err != nil {
@@ -84,32 +104,34 @@ func (s Service) startGRpcServer() error {
 	return nil
 }
 
-func (s *Service) SetState(state shrls.ServerState) {
+func (s *ShrlsService) SetState(state shrls.ServerState) {
 	s.state = &state
 }
 
-func (s *Service) SetServer(server shrls.ServerHandler) {
+func (s *ShrlsService) SetServer(server shrls.ServerHandler) {
 	s.server = &server
 }
 
 // This function is responsible for returning a concrete implementation of the
 // Shrls service with a mongodb state backend. Other backends can be setup by
-// manually configuring the Service{} type itself.
-func New() Service {
-	var s Service
-
-	// Set Server Implementation
-	var impl Server
-	s.SetServer(&impl)
+// manually configuring the ShrlsService{} type itself.
+func New() ShrlsService {
+	var s ShrlsService
 
 	// Set ServerState
 	mongo_uri := viper.GetString("mongo_uri")
-	var mongo mongostate.MongoDBState
+	mongo := mongostate.MongoDBState{}
 	err := mongo.Init(mongo_uri)
 	if err != nil {
 		log.Fatal("Couldn't connect to Mongo")
 	}
+
 	s.SetState(&mongo)
+
+	// Set Server Implementation
+	impl := service.New()
+	impl.SetState(&mongo)
+	s.SetServer(impl)
 
 	return s
 }

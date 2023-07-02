@@ -6,7 +6,7 @@ import (
 	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
 )
 
-func (s *MongoDBState) GetShrl(ctx context.Context, ref pb.Ref_ShortURL) (pb.ShortURL, error) {
+func (s *MongoDBState) GetShrl(ctx context.Context, ref *pb.Ref_ShortURL) (pb.ShortURL, error) {
 	return pb.ShortURL{
 		Id:   "",
 		Type: 0,
@@ -14,7 +14,7 @@ func (s *MongoDBState) GetShrl(ctx context.Context, ref pb.Ref_ShortURL) (pb.Sho
 		Content: &pb.ExpandedURL{
 			Content: &pb.ExpandedURL_Url{
 				Url: &pb.Redirect{
-					Url:     "",
+					Url:     "nuts",
 					Favicon: []byte{},
 				},
 			},

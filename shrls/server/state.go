@@ -7,5 +7,5 @@ import (
 )
 
 type ServerState interface {
-	GetShrl(context.Context, pb.Ref_ShortURL) (pb.ShortURL, error)
+	GetShrl(context.Context, *pb.Ref_ShortURL) (pb.ShortURL, error)
 }

@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/service"
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/service"
 
 	"github.com/spf13/cobra"
 )
