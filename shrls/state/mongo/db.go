@@ -8,7 +8,8 @@ import (
 )
 
 type MongoDBState struct {
-	client *mongo.Client
+	client     *mongo.Client
+	collection *mongo.Collection
 }
 
 func (s MongoDBState) Init(conn string) error {
@@ -19,5 +20,7 @@ func (s MongoDBState) Init(conn string) error {
 		return err
 	}
 	s.client = c
+	s.collection = s.client.Database("shrls").Collection("urls")
+
 	return nil
 }

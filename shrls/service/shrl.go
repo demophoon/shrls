@@ -27,6 +27,6 @@ func (s Server) GetShrl(ctx context.Context, req *pb.GetShrlRequest) (*pb.GetShr
 	}
 
 	return &pb.GetShrlResponse{
-		Shrl: &shrl,
+		Shrl: shrl,
 	}, nil
 }
