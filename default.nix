@@ -22,8 +22,12 @@ in
       impl
       iferr
 
+      # Backend
       buf
       grpcurl
+
+      # Frontend
+      nodePackages.npm
     ];
     shellHook = ''
     export GOPATH=$(pwd)/.gopath
