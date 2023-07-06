@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/v1/shrl": {
+    "/v1/shrl/{shrl.alias}": {
       "get": {
         "operationId": "Shrls_GetShrl",
         "responses": {
@@ -35,13 +35,49 @@
         },
         "parameters": [
           {
+            "name": "shrl.alias",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "shrl.id",
             "in": "query",
             "required": false,
             "type": "string"
+          }
+        ],
+        "tags": [
+          "Shrls"
+        ]
+      }
+    },
+    "/v1/shrls/{shrl.alias}": {
+      "get": {
+        "operationId": "Shrls_GetShrls",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/shrlsGetShrlsResponse"
+            }
           },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
           {
             "name": "shrl.alias",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "shrl.id",
             "in": "query",
             "required": false,
             "type": "string"
@@ -114,6 +150,18 @@
         }
       }
     },
+    "shrlsGetShrlsResponse": {
+      "type": "object",
+      "properties": {
+        "shrl": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/shrlsShortURL"
+          }
+        }
+      }
+    },
     "shrlsRedirect": {
       "type": "object",
       "properties": {
@@ -146,6 +194,11 @@
           "type": "string",
           "title": "External ID for ShortURL"
         },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "Date the ShortURL was created at"
+        },
         "type": {
           "$ref": "#/definitions/ShortURLShortURLType",
           "title": "ShortURL type"
@@ -157,6 +210,18 @@
         "content": {
           "$ref": "#/definitions/shrlsExpandedURL",
           "title": "Expanded destination"
+        },
+        "views": {
+          "type": "string",
+          "format": "int64",
+          "title": "Number of times the link has been clicked"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "User defined tags for the ShortURL to aid searching"
         }
       },
       "title": "========================================\nObjects\n========================================\nShortened Urls"

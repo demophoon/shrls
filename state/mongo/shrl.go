@@ -2,10 +2,15 @@ package mongostate
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"os"
 	"time"
 
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
 	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
+
+	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -31,7 +36,7 @@ type URL struct {
 	Type           ShrlType           `bson:"type" json:"type"`
 }
 
-func urlToShrl(u *URL) *pb.ShortURL {
+func (s *MongoDBState) urlToPbShrl(u *URL) *pb.ShortURL {
 	var content pb.ExpandedURL
 	var contentType pb.ShortURL_ShortURLType
 
@@ -48,9 +53,13 @@ func urlToShrl(u *URL) *pb.ShortURL {
 		}
 	case UploadedFile:
 		contentType = pb.ShortURL_UPLOAD
+		f, err := s.storage.ReadFile(u.UploadLocation)
+		if err != nil {
+			log.Error("Unable to retrieve file", "URL ID", u.ID)
+		}
 		content = pb.ExpandedURL{
 			Content: &pb.ExpandedURL_File{
-				File: []byte{},
+				File: f,
 			},
 		}
 	case TextSnippet:
@@ -58,64 +67,86 @@ func urlToShrl(u *URL) *pb.ShortURL {
 		content = pb.ExpandedURL{
 			Content: &pb.ExpandedURL_Snippet{
 				Snippet: &pb.Snippet{
-					Title: "",
-					Body:  []byte{},
+					Title: u.SnippetTitle,
+					Body:  []byte(u.Snippet),
 				},
 			},
 		}
 	}
 	return &pb.ShortURL{
-		Id:      u.ID.String(),
+		Id:      u.ID.Hex(),
 		Type:    contentType,
 		Stub:    u.Alias,
 		Content: &content,
+		Tags:    u.Tags,
 	}
 }
 
-func shrlToUrl(u pb.ShortURL) URL {
-	return URL{
-		ID: [12]byte{
-			0,
-			0,
-			0,
-			0,
-			0,
-			0,
-			0,
-			0,
-			0,
-			0,
-			0,
-			0,
-		},
-		Alias:          "",
-		Location:       "",
-		UploadLocation: "",
-		SnippetTitle:   "",
-		Snippet:        "",
-		CreatedAt:      time.Time{},
-		Views:          0,
-		Tags:           []string{},
-		Type:           0,
+func (s *MongoDBState) pbShrlToUrl(u pb.ShortURL) URL {
+	url := URL{
+		Alias:     u.Stub,
+		Views:     int(u.Views),
+		CreatedAt: time.Unix(u.CreatedAt, 0),
+		Tags:      u.Tags,
 	}
+
+	id, err := primitive.ObjectIDFromHex(u.Id)
+	if err != nil {
+		if err != primitive.ErrInvalidHex {
+			log.Error(err)
+		}
+	} else {
+		url.ID = id
+	}
+
+	switch u.Content.Content.(type) {
+	case *pb.ExpandedURL_Url:
+		url.Type = ShortenedUrl
+		url.Location = u.Content.GetUrl().Url
+	case *pb.ExpandedURL_File:
+		url.Type = UploadedFile
+		key, err := s.storage.CreateFile(u.Content.GetFile())
+		if err != nil {
+			log.Error("Failed to create file for url", u.Id)
+		} else {
+			url.UploadLocation = key
+		}
+	case *pb.ExpandedURL_Snippet:
+		url.Type = TextSnippet
+		url.Snippet = string(u.Content.GetSnippet().GetBody())
+		url.SnippetTitle = u.Content.GetSnippet().GetTitle()
+	}
+
+	return url
 }
 
 func (s *MongoDBState) CreateShrl(ctx context.Context, url *pb.ShortURL) (*pb.ShortURL, error) {
-	//_, err := s.collection.InsertOne(ctx, u)
-	return &pb.ShortURL{}, nil
-}
+	u := s.pbShrlToUrl(*url)
+	u.ID = primitive.NewObjectID()
+	u.CreatedAt = time.Now()
+	u.Views = 0
 
-func (s *MongoDBState) getShrl(ctx context.Context, ref *pb.Ref_ShortURL) (*URL, error) {
-	var url *URL
-
-	_id := ref.GetId()
-	cur := s.collection.FindOne(ctx, bson.M{"_id": &_id})
-	err := cur.Decode(&url)
+	_, err := s.collection.InsertOne(ctx, u)
 	if err != nil {
 		return nil, err
 	}
 
-	return url, nil
+	return s.GetShrl(ctx, &pb.Ref_ShortURL{
+		Ref: &pb.Ref_ShortURL_Id{
+			Id: u.ID.Hex(),
+		},
+	})
+}
+
+func (s *MongoDBState) getShrl(ctx context.Context, ref *pb.Ref_ShortURL) (*URL, error) {
+	urls, err := s.getShrls(ctx, ref)
+	if err != nil {
+		return nil, err
+	}
+	if len(urls) > 0 {
+		return urls[rand.Intn(len(urls))], nil
+	}
+	return nil, fmt.Errorf("No shrls could be found")
 }
 
 func (s *MongoDBState) GetShrl(ctx context.Context, ref *pb.Ref_ShortURL) (*pb.ShortURL, error) {
@@ -123,7 +154,53 @@ func (s *MongoDBState) GetShrl(ctx context.Context, ref *pb.Ref_ShortURL) (*pb.S
 	if err != nil {
 		return nil, err
 	}
-	return urlToShrl(url), nil
+	return s.urlToPbShrl(url), nil
+}
+
+func (s *MongoDBState) getShrls(ctx context.Context, ref *pb.Ref_ShortURL) ([]*URL, error) {
+	var urls []*URL
+	var query bson.M
+
+	switch ref.Ref.(type) {
+	case *gen.Ref_ShortURL_Id:
+		_ids := ref.GetId()
+		_id, err := primitive.ObjectIDFromHex(_ids)
+		if err != nil {
+			return nil, err
+		}
+		query = bson.M{"_id": _id}
+	case *gen.Ref_ShortURL_Alias:
+		query = bson.M{
+			"alias": ref.GetAlias(),
+		}
+	}
+
+	cur, err := s.collection.Find(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	for cur.Next(ctx) {
+		var u *URL
+		err := cur.Decode(&u)
+		if err != nil {
+			return nil, err
+		}
+		urls = append(urls, u)
+	}
+
+	return urls, nil
+}
+
+func (s *MongoDBState) GetShrls(ctx context.Context, ref *pb.Ref_ShortURL) ([]*pb.ShortURL, error) {
+	urls, err := s.getShrls(ctx, ref)
+	if err != nil {
+		return nil, err
+	}
+	var final []*pb.ShortURL
+	for _, url := range urls {
+		final = append(final, s.urlToPbShrl(url))
+	}
+	return final, nil
 }
 
 func (s *MongoDBState) UpdateShrl(ctx context.Context, url *pb.ShortURL) (*pb.ShortURL, error) {

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/service"
 
 	"github.com/spf13/cobra"
@@ -18,6 +19,7 @@ var serveCmd = &cobra.Command{
 }
 
 func shrls_serve(cmd *cobra.Command, args []string) {
-	s := service.New()
+	config := config.New()
+	s := service.New(config)
 	s.Run()
 }

@@ -8,25 +8,32 @@ import (
 	"net/http"
 	"sync"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
 	shrls "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server"
 	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
 	gw "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen/gateway"
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/static"
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/service"
 	mongostate "gitlab.cascadia.demophoon.com/demophoon/go-shrls/state/mongo"
+	directorystate "gitlab.cascadia.demophoon.com/demophoon/go-shrls/storage/directory"
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/ui"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
 
 type ShrlsService struct {
-	server *shrls.ServerHandler
-	state  *shrls.ServerState
+	server  *shrls.ServerHandler
+	State   *shrls.ServerState
+	storage *shrls.ServerStorage
+	config  *config.Config
+}
+
+func (s *ShrlsService) NewClient() shrls.ServerState {
+	return *s.State
 }
 
 func (s *ShrlsService) Run() error {
@@ -69,7 +76,7 @@ func (s ShrlsService) startHttpServer() error {
 	}
 
 	// Add static file assets
-	sub, err := fs.Sub(static.Content, "dist")
+	sub, err := fs.Sub(ui.Content, "dist")
 	if err != nil {
 		panic(err)
 	}
@@ -105,32 +112,41 @@ func (s ShrlsService) startGRpcServer() error {
 }
 
 func (s *ShrlsService) SetState(state shrls.ServerState) {
-	s.state = &state
+	s.State = &state
 }
 
 func (s *ShrlsService) SetServer(server shrls.ServerHandler) {
 	s.server = &server
 }
 
+func (s *ShrlsService) SetStorage(storage shrls.ServerStorage) {
+	s.storage = &storage
+}
+
+func (s *ShrlsService) SetConfig(config *config.Config) {
+	s.config = config
+}
+
 // This function is responsible for returning a concrete implementation of the
 // Shrls service with a mongodb state backend. Other backends can be setup by
 // manually configuring the ShrlsService{} type itself.
-func New() ShrlsService {
+func New(config *config.Config) ShrlsService {
 	var s ShrlsService
 
-	// Set ServerState
-	mongo_uri := viper.GetString("mongo_uri")
-	mongo := mongostate.MongoDBState{}
-	err := mongo.Init(mongo_uri)
-	if err != nil {
-		log.Fatal("Couldn't connect to Mongo")
-	}
+	s.SetConfig(config)
 
-	s.SetState(&mongo)
+	// Set ServerStorage
+	var storage *directorystate.DirectoryStorage = directorystate.New(config)
+	s.SetStorage(storage)
+
+	// Set ServerState
+	state := mongostate.New(config)
+	state.SetStorage(storage)
+	s.SetState(state)
 
 	// Set Server Implementation
-	impl := service.New()
-	impl.SetState(&mongo)
+	impl := service.New(config)
+	impl.SetState(state)
 	s.SetServer(impl)
 
 	return s

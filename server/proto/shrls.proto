@@ -12,7 +12,13 @@ package shrls;
 service Shrls {
 	rpc GetShrl(GetShrlRequest) returns (GetShrlResponse) {
 		option (google.api.http) = {
-			get: "/v1/shrl"
+			get: "/v1/shrl/{shrl.alias}"
+		};
+	};
+
+	rpc GetShrls(GetShrlsRequest) returns (GetShrlsResponse) {
+		option (google.api.http) = {
+			get: "/v1/shrls/{shrl.alias}"
 		};
 	};
 }
@@ -25,6 +31,12 @@ message GetShrlRequest {
 }
 message GetShrlResponse {
 	ShortURL shrl = 1;
+}
+message GetShrlsRequest {
+	Ref.ShortURL shrl = 1;
+}
+message GetShrlsResponse {
+	repeated ShortURL shrl = 1;
 }
 
 // ========================================
@@ -52,10 +64,13 @@ message ShortURL {
 	}
 
 	string       id = 1; // External ID for ShortURL
-	ShortURLType type = 2; // ShortURL type
+	int64 created_at = 2; // Date the ShortURL was created at
+	ShortURLType type = 3; // ShortURL type
 
-	string       stub = 3; // URL stub
-	ExpandedURL  content = 4; // Expanded destination
+	string       stub = 4; // URL stub
+	ExpandedURL  content = 5; // Expanded destination
+	int64 views = 6; // Number of times the link has been clicked
+	repeated string tags = 7; // User defined tags for the ShortURL to aid searching
 }
 
 // Text snippets

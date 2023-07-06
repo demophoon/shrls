@@ -1,28 +1,57 @@
 package cli
 
 import (
+	"context"
 	"fmt"
-	"os"
 
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/service"
+	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
+
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "shrls",
-	Short: "Shrls is a easy to use url shortener",
-	Long:  `An easy to use, feature rich url shortner built in Go.`,
+func init() {
+	rootCmd.AddCommand(shrlsCmd)
+	shrlsCmd.AddCommand(shrlsAddCmd)
+}
+
+var shrlsCmd = &cobra.Command{
+	Use:   "shrl",
+	Short: "Manage shortened urls via command line",
+	Long:  `Perform CRUD operations on shortened urls within Shrls`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Do Stuff Here
+		cmd.HelpFunc()
 	},
 }
 
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-}
+var shrlsAddCmd = &cobra.Command{
+	Use:   "add",
+	Short: "Add a new short url to Shrls",
+	Long:  `Create a new short url and add it to shrls.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		ctx := context.Background()
+		defer ctx.Done()
 
-func init() {
-	cobra.OnInitialize(initConfig)
+		config := config.New()
+		s := service.New(config)
+		client := s.NewClient()
+		shrl, err := client.CreateShrl(ctx, &pb.ShortURL{
+			Stub: "hello",
+			Content: &pb.ExpandedURL{
+				Content: &pb.ExpandedURL_Url{
+					Url: &pb.Redirect{
+						Url: "https://www.google.com/2",
+					},
+				},
+			},
+			Tags: []string{"wild", "twos"},
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Info("Url shortened", fmt.Sprintf("Shrl: %#v", shrl))
+	},
 }

@@ -1,50 +1,26 @@
 package cli
 
 import (
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+	"fmt"
+
+	"github.com/spf13/cobra"
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
 )
 
-func initConfig() {
-	viper.SetEnvPrefix("shrls")
-	setDefaults()
+// TODO: Write config Viewing and Modifying CLI
 
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetLevel(log.TraceLevel)
-
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/etc/shrls/")
-	viper.AddConfigPath("$HOME/.config/shrls")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Warn("No config file found, using defaults.")
-	}
+func init() {
+	rootCmd.AddCommand(configCmd)
 }
 
-func setDefaults() {
-	viper.BindEnv("base_url")
+var configCmd = &cobra.Command{
+	Use:   "config",
+	Short: "Configure shrls service",
+	Long:  `View and edit the configuration for the shrls service.`,
+	Run:   shrls_config,
+}
 
-	viper.BindEnv("port")
-	viper.SetDefault("port", 3000)
-
-	viper.BindEnv("grpc_port")
-	viper.SetDefault("grpc_port", 3001)
-
-	viper.BindEnv("default_redirect")
-
-	viper.BindEnv("upload_directory")
-	viper.SetDefault("upload_directory", "./uploads")
-
-	viper.BindEnv("mongo_uri")
-	viper.SetDefault("mongo_uri", "mongodb://mongo:password@localhost:27017")
-
-	viper.BindEnv("admin_username")
-	viper.SetDefault("admin_username", "")
-
-	viper.BindEnv("admin_password")
-	viper.SetDefault("admin_password", "")
-
-	viper.SetDefault("terminal_redirect", false)
+func shrls_config(cmd *cobra.Command, args []string) {
+	config := config.New()
+	fmt.Printf("Config: %#v", config)
 }
