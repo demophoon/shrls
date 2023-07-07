@@ -14,7 +14,7 @@ import (
 
 func init() {
 	rootCmd.AddCommand(shrlsCmd)
-	shrlsCmd.AddCommand(shrlsAddCmd)
+	shrlsCmd.AddCommand(shrlsCreateCmd)
 }
 
 var shrlsCmd = &cobra.Command{
@@ -26,8 +26,8 @@ var shrlsCmd = &cobra.Command{
 	},
 }
 
-var shrlsAddCmd = &cobra.Command{
-	Use:   "add",
+var shrlsCreateCmd = &cobra.Command{
+	Use:   "create",
 	Short: "Add a new short url to Shrls",
 	Long:  `Create a new short url and add it to shrls.`,
 	Run: func(cmd *cobra.Command, args []string) {
