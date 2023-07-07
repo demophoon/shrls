@@ -1,4 +1,4 @@
-package cli
+package serve
 
 import (
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
@@ -7,11 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	rootCmd.AddCommand(serveCmd)
-}
-
-var serveCmd = &cobra.Command{
+var ServeCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Run the Shrls server.",
 	Long:  `Start the Shrls server using the settings given.`,

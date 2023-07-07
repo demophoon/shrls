@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli/serve"
+	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli/shrls"
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
 )
 
@@ -13,7 +15,7 @@ var rootCmd = &cobra.Command{
 	Short: "Shrls is a easy to use url shortener",
 	Long:  `An easy to use, feature rich url shortner built in Go.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Do Stuff Here
+		cmd.HelpFunc()
 	},
 }
 
@@ -26,4 +28,11 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(config.InitConfig)
+
+	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(helpCmd)
+	rootCmd.AddCommand(shrls.ShrlsCmd)
+	rootCmd.AddCommand(serve.ServeCmd)
 }

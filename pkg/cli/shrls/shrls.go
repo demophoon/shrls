@@ -1,4 +1,4 @@
-package cli
+package shrls
 
 import (
 	"context"
@@ -13,11 +13,10 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(shrlsCmd)
-	shrlsCmd.AddCommand(shrlsCreateCmd)
+	ShrlsCmd.AddCommand(shrlsCreateCmd)
 }
 
-var shrlsCmd = &cobra.Command{
+var ShrlsCmd = &cobra.Command{
 	Use:   "shrl",
 	Short: "Manage shortened urls via command line",
 	Long:  `Perform CRUD operations on shortened urls within Shrls`,
