@@ -3,7 +3,7 @@ let
 in
   pkgs.mkShell {
     buildInputs = with pkgs; [
-      go_1_18
+      # Development Shell
       gotools
       gopls
       go-outline
@@ -22,11 +22,16 @@ in
       impl
       iferr
 
+      # Build environment
+      gnumake42
+      go_1_18
+
       # Backend
       buf
       grpcurl
 
       # Frontend
+      nodejs_20
       nodePackages.npm
     ];
     shellHook = ''
