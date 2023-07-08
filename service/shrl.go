@@ -3,22 +3,8 @@ package service
 import (
 	"context"
 
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/server"
 	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
 )
-
-type Server struct {
-	state *server.ServerState
-}
-
-func New(c *config.Config) *Server {
-	return &Server{}
-}
-
-func (s *Server) SetState(state server.ServerState) {
-	s.state = &state
-}
 
 func (s Server) GetShrl(ctx context.Context, req *pb.GetShrlRequest) (*pb.GetShrlResponse, error) {
 	state := *s.state

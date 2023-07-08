@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	configcmd "gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli/config"
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli/serve"
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli/shrls"
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
@@ -27,12 +28,17 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(config.InitConfig)
+	rootCmd.PersistentFlags().String("config", "", "Path to config.yaml file")
+	rootCmd.PersistentFlags().Bool("debug", false, "Output debug logging")
+	rootCmd.PersistentFlags().Bool("trace", false, "Output trace logging")
 
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	cobra.OnInitialize(func() {
+		config.InitConfig(rootCmd)
+	})
 
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(helpCmd)
 	rootCmd.AddCommand(shrls.ShrlsCmd)
 	rootCmd.AddCommand(serve.ServeCmd)
+	rootCmd.AddCommand(configcmd.ConfigCmd)
 }

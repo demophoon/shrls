@@ -79,6 +79,7 @@ func (s *MongoDBState) urlToPbShrl(u *URL) *pb.ShortURL {
 		Stub:    u.Alias,
 		Content: &content,
 		Tags:    u.Tags,
+		Views:   int64(u.Views),
 	}
 }
 

@@ -9,11 +9,7 @@ import (
 
 // TODO: Write config Viewing and Modifying CLI
 
-func init() {
-	rootCmd.AddCommand(configCmd)
-}
-
-var configCmd = &cobra.Command{
+var ConfigCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Configure shrls service",
 	Long:  `View and edit the configuration for the shrls service.`,
