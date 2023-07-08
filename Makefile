@@ -15,4 +15,4 @@ bin: ui
 
 .PHONY: dist
 dist: ui
-	go build -o shrls -ldflags="-s -w -X gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli.version=${version}" cmd/shrls/main.go
+	CGO_ENABLED=0 GOOS=linux go build -o shrls -a --installsuffix cgo -ldflags="-s -w -X gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli.version=${version}" cmd/shrls/main.go
