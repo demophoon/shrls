@@ -1,4 +1,6 @@
 import Vue from "vue"
+import SwaggerClient from 'swagger-client';
+
 import ShrlList from "./components/shrlList.vue"
 import ShrlItem from "./components/shrl.vue"
 import ShrlEdit from "./components/shrlEdit.vue"
@@ -108,6 +110,13 @@ const app = new Vue({
             if (fetch) { this.fetchShrls() }
         },
         fetchShrls: _.throttle(function() {
+
+            let api = new SwaggerClient("/admin/shrls.swagger.json")
+                .then(
+                    client => console.log(client),
+                    e => console.error(e)
+                )
+
             let url = new URL(document.location.protocol + "//" + document.location.host + "/api/shrl")
             url.searchParams.append("search", this.searchOpts.search)
             url.searchParams.append("skip", this.skip)
