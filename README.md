@@ -50,12 +50,6 @@ The HTTP port of the Shrls service.
 
 Defaults to `3000`
 
-### grpc_port
-
-The gRPC port of the Shrls service.
-
-Defaults to `3001`
-
 ### default_redirect
 
 If a short url does not exist, redirect the user to the configured default_redirect. Otherwise 404.

@@ -30,7 +30,6 @@ const (
 type Config struct {
 	BaseURL          string
 	Port             int
-	GrpcPort         int    `mapstructure:"grpc_port"`
 	DefaultRedirect  string `mapstructure:"default_redirect"`
 	TerminalRedirect bool
 
@@ -89,9 +88,6 @@ func bindConfig(rootCmd *cobra.Command) {
 
 	viper.BindEnv("port")
 	viper.SetDefault("port", 3000)
-
-	viper.BindEnv("grpc_port")
-	viper.SetDefault("grpc_port", 3001)
 
 	viper.BindEnv("default_redirect")
 
