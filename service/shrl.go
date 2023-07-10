@@ -7,8 +7,7 @@ import (
 )
 
 func (s Server) GetShrl(ctx context.Context, req *pb.GetShrlRequest) (*pb.GetShrlResponse, error) {
-	state := *s.state
-	shrl, err := state.GetShrl(ctx, req.Shrl)
+	shrl, err := s.state.GetShrl(ctx, req.Shrl)
 	if err != nil {
 		return nil, err
 	}
@@ -19,13 +18,24 @@ func (s Server) GetShrl(ctx context.Context, req *pb.GetShrlRequest) (*pb.GetShr
 }
 
 func (s Server) GetShrls(ctx context.Context, req *pb.GetShrlsRequest) (*pb.GetShrlsResponse, error) {
-	state := *s.state
-	shrl, err := state.GetShrls(ctx, req.Shrl)
+	shrls, err := s.state.GetShrls(ctx, req.Shrl)
 	if err != nil {
 		return nil, err
 	}
 
 	return &pb.GetShrlsResponse{
-		Shrl: shrl,
+		Shrls: shrls,
+	}, nil
+}
+
+func (s Server) ListShrls(ctx context.Context, req *pb.ListShrlsRequest) (*pb.ListShrlsResponse, error) {
+	shrls, total, err := s.state.ListShrls(ctx, req.Search, req.Count, req.Page)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ListShrlsResponse{
+		Shrls:      shrls,
+		TotalShrls: total,
 	}, nil
 }

@@ -14,12 +14,12 @@
 
         <div class="list-item-content">
             <div class="list-item-title">
-                <a target="_blank" v-bind:href="short_url">{{ shrl.alias }}</a>
+                <a target="_blank" v-bind:href="short_url">{{ shrl.stub }}</a>
             </div>
 
             <div class="list-item-description">
                 <span class="is-size-7" v-if="shrl.type == ShrlType.shortenedURL">
-                    <a target="_blank" v-bind:href="shrl.location">{{ domain }}</a>
+                    <a target="_blank" v-bind:href="shrl.content.url.url">{{ domain }}</a>
                 </span>
                 <span class="is-size-7" v-if="shrl.type == ShrlType.textSnippet">
                     {{ shrl.snippet_title }}
@@ -87,12 +87,12 @@ export default {
     },
     computed: {
         short_url: function() {
-            return "/" + this.shrl.alias;
+            return "/" + this.shrl.stub;
         },
         domain: function() {
             if (this.shrl.type == ShrlType.shortenedURL) {
                 try {
-                    return new URL(this.shrl.location).host
+                    return new URL(this.shrl.content.url.url).host
                 } catch (_) {
                     return ""
                 }
@@ -127,10 +127,10 @@ export default {
             bus.$emit("load-shrls")
         },
         copyUrl: function() {
-            copy(document.location.protocol + "//" + document.location.host + "/" + this.shrl.alias)
+            copy(document.location.protocol + "//" + document.location.host + "/" + this.shrl.stub)
         },
         copyQR: function() {
-            copy(document.location.protocol + "//" + document.location.host + "/" + this.shrl.alias + ".qr")
+            copy(document.location.protocol + "//" + document.location.host + "/" + this.shrl.stub + ".qr")
         },
     }
 }

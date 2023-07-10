@@ -10,6 +10,15 @@ module.exports = {
     output: {
         filename: './[name].js',
     },
+    devServer: {
+        proxy: {
+            "/v1": {
+                target: "http://localhost:8080",
+                router: () => 'http://localhost:3000',
+                logLevel: 'debug'
+            }
+        }
+    },
     resolve: {
         alias: {
             'vue$': 'vue/dist/vue.esm.js'
@@ -32,6 +41,10 @@ module.exports = {
             {
                 test: /\.css$/i,
                 use: ['style-loader', 'css-loader'],
+            },
+            {
+                test: /\.(json)$/i,
+                type: 'asset/resource',
             },
             {
                 test: /\.(png|svg|jpg|jpeg|gif)$/i,

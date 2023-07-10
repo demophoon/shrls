@@ -13,6 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ShrlType int
@@ -21,6 +22,10 @@ const (
 	ShortenedUrl ShrlType = iota
 	UploadedFile
 	TextSnippet
+)
+
+var (
+	DefaultSearch string = ".*"
 )
 
 type URL struct {
@@ -34,6 +39,22 @@ type URL struct {
 	Views          int                `bson:"views" json:"views"`
 	Tags           []string           `bson:"tags" json:"tags"`
 	Type           ShrlType           `bson:"type" json:"type"`
+}
+
+func (s *MongoDBState) urlsToPbShrls(urls []*URL) []*pb.ShortURL {
+	var final []*pb.ShortURL
+	for _, url := range urls {
+		final = append(final, s.urlToPbShrl(url))
+	}
+	return final
+}
+
+func (s *MongoDBState) pbShrlsToUrls(urls []*pb.ShortURL) []*URL {
+	var final []*URL
+	for _, url := range urls {
+		final = append(final, s.pbShrlToUrl(url))
+	}
+	return final
 }
 
 func (s *MongoDBState) urlToPbShrl(u *URL) *pb.ShortURL {
@@ -83,7 +104,7 @@ func (s *MongoDBState) urlToPbShrl(u *URL) *pb.ShortURL {
 	}
 }
 
-func (s *MongoDBState) pbShrlToUrl(u pb.ShortURL) URL {
+func (s *MongoDBState) pbShrlToUrl(u *pb.ShortURL) *URL {
 	url := URL{
 		Alias:     u.Stub,
 		Views:     int(u.Views),
@@ -118,11 +139,11 @@ func (s *MongoDBState) pbShrlToUrl(u pb.ShortURL) URL {
 		url.SnippetTitle = u.Content.GetSnippet().GetTitle()
 	}
 
-	return url
+	return &url
 }
 
 func (s *MongoDBState) CreateShrl(ctx context.Context, url *pb.ShortURL) (*pb.ShortURL, error) {
-	u := s.pbShrlToUrl(*url)
+	u := s.pbShrlToUrl(url)
 	u.ID = primitive.NewObjectID()
 	u.CreatedAt = time.Now()
 	u.Views = 0
@@ -197,11 +218,7 @@ func (s *MongoDBState) GetShrls(ctx context.Context, ref *pb.Ref_ShortURL) ([]*p
 	if err != nil {
 		return nil, err
 	}
-	var final []*pb.ShortURL
-	for _, url := range urls {
-		final = append(final, s.urlToPbShrl(url))
-	}
-	return final, nil
+	return s.urlsToPbShrls(urls), nil
 }
 
 func (s *MongoDBState) UpdateShrl(ctx context.Context, url *pb.ShortURL) (*pb.ShortURL, error) {
@@ -210,6 +227,85 @@ func (s *MongoDBState) UpdateShrl(ctx context.Context, url *pb.ShortURL) (*pb.Sh
 	//})
 	//return nil, err
 	return &pb.ShortURL{}, nil
+}
+
+func (s *MongoDBState) listShrls(ctx context.Context, search *string, count *int64, page *int64) ([]*URL, int64, error) {
+	filter := bson.M{}
+	if search == nil {
+		search = &DefaultSearch
+	}
+
+	pregex := bson.M{
+		"$regex": primitive.Regex{
+			Pattern: *search,
+			Options: "i",
+		},
+	}
+
+	filter = bson.M{
+		"$or": bson.A{
+			bson.M{"alias": pregex},
+			bson.M{"location": pregex},
+			bson.M{"tags": pregex},
+		},
+	}
+
+	total, err := s.collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, -1, err
+	}
+
+	var searchCount int64 = 50
+	var searchPage int64 = 0
+
+	if count != nil {
+		searchCount = *count
+	}
+	if searchCount > 100 {
+		searchCount = 100
+	}
+	if searchCount < 10 {
+		searchCount = 10
+	}
+
+	if page != nil {
+		searchPage = *page
+	}
+	if searchPage < 0 {
+		searchPage = 0
+	}
+
+	skip := searchCount * searchPage
+	limit := searchCount
+
+	opts := options.FindOptions{
+		Skip:  &skip,
+		Limit: &limit,
+	}
+
+	opts.SetSort(bson.M{"created_at": -1})
+
+	cur, err := s.collection.Find(ctx, filter, &opts)
+
+	urls := []*URL{}
+
+	for cur.Next(ctx) {
+		var u URL
+		err := cur.Decode(&u)
+		if err != nil {
+			log.Error("Couldn't decode SHRL from Mongo", err)
+			continue
+		}
+		urls = append(urls, &u)
+	}
+
+	return urls, total, nil
+}
+
+func (s *MongoDBState) ListShrls(ctx context.Context, search *string, count *int64, page *int64) ([]*pb.ShortURL, int64, error) {
+	urls, total, err := s.listShrls(ctx, search, count, page)
+
+	return s.urlsToPbShrls(urls), total, err
 }
 
 func (s *MongoDBState) DeleteShrl(ctx context.Context, ref *pb.Ref_ShortURL) error {

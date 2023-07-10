@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Shrls_GetShrl_FullMethodName  = "/shrls.Shrls/GetShrl"
-	Shrls_GetShrls_FullMethodName = "/shrls.Shrls/GetShrls"
+	Shrls_GetShrl_FullMethodName   = "/shrls.Shrls/GetShrl"
+	Shrls_GetShrls_FullMethodName  = "/shrls.Shrls/GetShrls"
+	Shrls_ListShrls_FullMethodName = "/shrls.Shrls/ListShrls"
 )
 
 // ShrlsClient is the client API for Shrls service.
@@ -29,6 +30,7 @@ const (
 type ShrlsClient interface {
 	GetShrl(ctx context.Context, in *GetShrlRequest, opts ...grpc.CallOption) (*GetShrlResponse, error)
 	GetShrls(ctx context.Context, in *GetShrlsRequest, opts ...grpc.CallOption) (*GetShrlsResponse, error)
+	ListShrls(ctx context.Context, in *ListShrlsRequest, opts ...grpc.CallOption) (*ListShrlsResponse, error)
 }
 
 type shrlsClient struct {
@@ -57,12 +59,22 @@ func (c *shrlsClient) GetShrls(ctx context.Context, in *GetShrlsRequest, opts ..
 	return out, nil
 }
 
+func (c *shrlsClient) ListShrls(ctx context.Context, in *ListShrlsRequest, opts ...grpc.CallOption) (*ListShrlsResponse, error) {
+	out := new(ListShrlsResponse)
+	err := c.cc.Invoke(ctx, Shrls_ListShrls_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ShrlsServer is the server API for Shrls service.
 // All implementations should embed UnimplementedShrlsServer
 // for forward compatibility
 type ShrlsServer interface {
 	GetShrl(context.Context, *GetShrlRequest) (*GetShrlResponse, error)
 	GetShrls(context.Context, *GetShrlsRequest) (*GetShrlsResponse, error)
+	ListShrls(context.Context, *ListShrlsRequest) (*ListShrlsResponse, error)
 }
 
 // UnimplementedShrlsServer should be embedded to have forward compatible implementations.
@@ -74,6 +86,9 @@ func (UnimplementedShrlsServer) GetShrl(context.Context, *GetShrlRequest) (*GetS
 }
 func (UnimplementedShrlsServer) GetShrls(context.Context, *GetShrlsRequest) (*GetShrlsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetShrls not implemented")
+}
+func (UnimplementedShrlsServer) ListShrls(context.Context, *ListShrlsRequest) (*ListShrlsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListShrls not implemented")
 }
 
 // UnsafeShrlsServer may be embedded to opt out of forward compatibility for this service.
@@ -123,6 +138,24 @@ func _Shrls_GetShrls_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Shrls_ListShrls_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListShrlsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ShrlsServer).ListShrls(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Shrls_ListShrls_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ShrlsServer).ListShrls(ctx, req.(*ListShrlsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Shrls_ServiceDesc is the grpc.ServiceDesc for Shrls service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -137,6 +170,10 @@ var Shrls_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetShrls",
 			Handler:    _Shrls_GetShrls_Handler,
+		},
+		{
+			MethodName: "ListShrls",
+			Handler:    _Shrls_ListShrls_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

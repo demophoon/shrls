@@ -12,6 +12,8 @@ import ShrlFooter from "./components/footer.vue"
 require('./styles.scss')
 import '@fortawesome/fontawesome-free/css/all.css'
 
+import swagger from '../../server/gen/shrls.swagger.json'
+
 var _ = require('lodash');
 
 Vue.component("shrl-list", ShrlList)
@@ -34,10 +36,12 @@ export const ShrlEnum = [
     "Text Snippet",
 ]
 export const ShrlType = {
-    shortenedURL: 0,
-    uploadedFile: 1,
-    textSnippet: 2,
+    shortenedURL: "LINK",
+    uploadedFile: "UPLOAD",
+    textSnippet: "SNIPPET",
 }
+
+const api = (await new SwaggerClient(swagger)).apis.Shrls
 
 const app = new Vue({
     el: container,
@@ -93,7 +97,7 @@ const app = new Vue({
     computed: {
         skip: function() {
             let page = this.searchOpts.page || 0
-            let limit = this.searchOpts.limit || 25
+            let limit = this.searchOpts.limit || 15
             return page * limit
         },
     },
@@ -110,27 +114,15 @@ const app = new Vue({
             if (fetch) { this.fetchShrls() }
         },
         fetchShrls: _.throttle(function() {
-
-            let api = new SwaggerClient("/admin/shrls.swagger.json")
-                .then(
-                    client => console.log(client),
-                    e => console.error(e)
-                )
-
-            let url = new URL(document.location.protocol + "//" + document.location.host + "/api/shrl")
-            url.searchParams.append("search", this.searchOpts.search)
-            url.searchParams.append("skip", this.skip)
-            url.searchParams.append("limit", this.searchOpts.limit)
-            fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                    app.shrls = data.shrls.map((shrl) => {
-                        shrl.tags = shrl.tags || []
-                        return shrl
-                    });
-                    app.count = data.count;
+            api.Shrls_ListShrls({
+                search: this.searchOpts.search,
+                page: this.page,
+            })
+                .then(res => {
+                    app.shrls = res.obj.shrls
+                    app.count = res.obj.totalShrls
                 })
-                .catch(err => { throw err });
+                .catch(err => { throw err});
         }, 1000),
     },
 })

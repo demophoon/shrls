@@ -21,22 +21,40 @@ service Shrls {
 			get: "/v1/shrls/{shrl.alias}"
 		};
 	};
+
+	rpc ListShrls(ListShrlsRequest) returns (ListShrlsResponse) {
+		option (google.api.http) = {
+			get: "/v1/shrls"
+		};
+	};
 }
 
 // ========================================
 // Server Methods
 // ========================================
+// GetShrl
 message GetShrlRequest {
 	Ref.ShortURL shrl = 1;
 }
 message GetShrlResponse {
 	ShortURL shrl = 1;
 }
+// GetShrls
 message GetShrlsRequest {
 	Ref.ShortURL shrl = 1;
 }
 message GetShrlsResponse {
-	repeated ShortURL shrl = 1;
+	repeated ShortURL shrls = 1;
+}
+// ListShrls (Paginated)
+message ListShrlsRequest {
+	optional string search = 1;
+	optional int64 page = 2;
+	optional int64 count = 3;
+}
+message ListShrlsResponse {
+	repeated ShortURL shrls = 1;
+	int64 total_shrls = 2;
 }
 
 // ========================================

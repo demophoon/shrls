@@ -6,7 +6,7 @@ import (
 )
 
 type Server struct {
-	state *server.ServerState
+	state server.ServerState
 }
 
 func New(c *config.Config) *Server {
@@ -14,5 +14,5 @@ func New(c *config.Config) *Server {
 }
 
 func (s *Server) SetState(state server.ServerState) {
-	s.state = &state
+	s.state = state
 }

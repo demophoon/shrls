@@ -52,6 +52,50 @@
         ]
       }
     },
+    "/v1/shrls": {
+      "get": {
+        "operationId": "Shrls_ListShrls",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/shrlsListShrlsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Shrls"
+        ]
+      }
+    },
     "/v1/shrls/{shrl.alias}": {
       "get": {
         "operationId": "Shrls_GetShrls",
@@ -153,12 +197,28 @@
     "shrlsGetShrlsResponse": {
       "type": "object",
       "properties": {
-        "shrl": {
+        "shrls": {
           "type": "array",
           "items": {
             "type": "object",
             "$ref": "#/definitions/shrlsShortURL"
           }
+        }
+      }
+    },
+    "shrlsListShrlsResponse": {
+      "type": "object",
+      "properties": {
+        "shrls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/shrlsShortURL"
+          }
+        },
+        "totalShrls": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },
