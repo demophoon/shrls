@@ -78,6 +78,7 @@ function isValidHttpUrl(string) {
 }
 
 export default {
+    props: ["api"],
     data: function() {
         return {
             ShrlType,
@@ -143,36 +144,32 @@ export default {
             copy(url)
         },
         // API posts
-        createShrl: function(url) {
-            fetch("/api/shrl", {
-                method: "POST",
-                body: JSON.stringify({
-                    location: url
-                })
-            }).then((d) => {
-                return d.json()
-            }).then((d) => {
-                this.copyAlias(d.shrl.alias)
+        postShrl: function(url) {
+            this.api.Shrls_PostShrl({
+                "body": {shrl: {
+                    content: url,
+                }},
+            }).then((res) => {
+                this.copyAlias(res.obj.shrl.stub)
                 bus.$emit("load-shrls")
                 this.resetOmnibar()
-            })
+            }).catch(err => { throw err });
         },
-        createSnippet: function(title, paste) {
-            fetch("/api/snippet", {
-                method: "POST",
-                body: JSON.stringify({
-                    title: title,
-                    body: paste,
-                }),
-            }).then((d) => {
-                return d.json()
-            }).then((d) => {
-                this.copyAlias(d.shrl.alias)
-                bus.$emit("load-shrls")
-                this.resetOmnibar()
-            })
+        createShrl: function(url) {
+            this.postShrl({ url: { url }})
+        },
+        createSnippet: function(title, body) {
+            this.postShrl({ snippet: { title, body: btoa(body) }})
         },
         createUpload: function(file) {
+            var reader = new FileReader();
+            reader.readAsDataURL(file)
+            reader.onload = () => {
+                let f = reader.result.split(",")[1]
+                this.postShrl({ file: f })
+            }
+            return
+            this.postShrl({ file: btoa(body) })
             let fd = new FormData()
             fd.append("file", file)
             fetch("/api/upload", {

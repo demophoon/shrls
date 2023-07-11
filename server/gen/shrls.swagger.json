@@ -16,6 +16,38 @@
     "application/json"
   ],
   "paths": {
+    "/v1/shrl": {
+      "post": {
+        "operationId": "Shrls_PostShrl",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/shrlsPostShrlResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/shrlsPostShrlRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Shrls"
+        ]
+      }
+    },
     "/v1/shrl/{shrl.alias}": {
       "get": {
         "operationId": "Shrls_GetShrl",
@@ -45,6 +77,117 @@
             "in": "query",
             "required": false,
             "type": "string"
+          }
+        ],
+        "tags": [
+          "Shrls"
+        ]
+      }
+    },
+    "/v1/shrl/{shrl.id}": {
+      "delete": {
+        "operationId": "Shrls_DeleteShrl",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/shrlsDeleteShrlResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "shrl.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "shrl.alias",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Shrls"
+        ]
+      },
+      "put": {
+        "operationId": "Shrls_PutShrl",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/shrlsPutShrlResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "shrl.id",
+            "description": "External ID for ShortURL",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "shrl": {
+                  "type": "object",
+                  "properties": {
+                    "createdAt": {
+                      "type": "string",
+                      "format": "int64",
+                      "title": "Date the ShortURL was created at"
+                    },
+                    "type": {
+                      "$ref": "#/definitions/ShortURLShortURLType",
+                      "title": "ShortURL type"
+                    },
+                    "stub": {
+                      "type": "string",
+                      "title": "URL stub"
+                    },
+                    "content": {
+                      "$ref": "#/definitions/shrlsExpandedURL",
+                      "title": "Expanded destination"
+                    },
+                    "views": {
+                      "type": "string",
+                      "format": "int64",
+                      "title": "Number of times the link has been clicked"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "title": "User defined tags for the ShortURL to aid searching"
+                    }
+                  },
+                  "title": "========================================\nObjects\n========================================\nShortened Urls"
+                }
+              },
+              "title": "PutShrl"
+            }
           }
         ],
         "tags": [
@@ -171,6 +314,9 @@
         }
       }
     },
+    "shrlsDeleteShrlResponse": {
+      "type": "object"
+    },
     "shrlsExpandedURL": {
       "type": "object",
       "properties": {
@@ -219,6 +365,31 @@
         "totalShrls": {
           "type": "string",
           "format": "int64"
+        }
+      }
+    },
+    "shrlsPostShrlRequest": {
+      "type": "object",
+      "properties": {
+        "shrl": {
+          "$ref": "#/definitions/shrlsShortURL"
+        }
+      },
+      "title": "PostShrl"
+    },
+    "shrlsPostShrlResponse": {
+      "type": "object",
+      "properties": {
+        "shrl": {
+          "$ref": "#/definitions/shrlsShortURL"
+        }
+      }
+    },
+    "shrlsPutShrlResponse": {
+      "type": "object",
+      "properties": {
+        "shrl": {
+          "$ref": "#/definitions/shrlsShortURL"
         }
       }
     },

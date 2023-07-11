@@ -10,6 +10,7 @@ require (
 	github.com/soheilhy/cmux v0.1.5
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
+	github.com/thanhpk/randstr v1.0.6
 	go.mongodb.org/mongo-driver v1.8.1
 	goji.io v2.0.2+incompatible
 	google.golang.org/genproto/googleapis/api v0.0.0-20230530153820-e85fd2cbaebc

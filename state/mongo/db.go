@@ -7,6 +7,7 @@ import (
 
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/server"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

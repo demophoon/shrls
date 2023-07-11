@@ -11,6 +11,7 @@ import (
 	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/thanhpk/randstr"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -95,12 +96,13 @@ func (s *MongoDBState) urlToPbShrl(u *URL) *pb.ShortURL {
 		}
 	}
 	return &pb.ShortURL{
-		Id:      u.ID.Hex(),
-		Type:    contentType,
-		Stub:    u.Alias,
-		Content: &content,
-		Tags:    u.Tags,
-		Views:   int64(u.Views),
+		Id:        u.ID.Hex(),
+		Type:      contentType,
+		Stub:      u.Alias,
+		Content:   &content,
+		Tags:      u.Tags,
+		Views:     int64(u.Views),
+		CreatedAt: u.CreatedAt.Unix(),
 	}
 }
 
@@ -137,9 +139,15 @@ func (s *MongoDBState) pbShrlToUrl(u *pb.ShortURL) *URL {
 		url.Type = TextSnippet
 		url.Snippet = string(u.Content.GetSnippet().GetBody())
 		url.SnippetTitle = u.Content.GetSnippet().GetTitle()
+	default:
+		panic("Invalid url type")
 	}
 
 	return &url
+}
+
+func (s *MongoDBState) newStub() string {
+	return randstr.String(5)
 }
 
 func (s *MongoDBState) CreateShrl(ctx context.Context, url *pb.ShortURL) (*pb.ShortURL, error) {
@@ -147,6 +155,7 @@ func (s *MongoDBState) CreateShrl(ctx context.Context, url *pb.ShortURL) (*pb.Sh
 	u.ID = primitive.NewObjectID()
 	u.CreatedAt = time.Now()
 	u.Views = 0
+	u.Alias = s.newStub()
 
 	_, err := s.collection.InsertOne(ctx, u)
 	if err != nil {
@@ -221,12 +230,22 @@ func (s *MongoDBState) GetShrls(ctx context.Context, ref *pb.Ref_ShortURL) ([]*p
 	return s.urlsToPbShrls(urls), nil
 }
 
+func (s *MongoDBState) updateShrl(ctx context.Context, url *URL) (*URL, error) {
+	_, err := s.collection.UpdateByID(ctx, url.ID, bson.M{
+		"$set": url,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return url, nil
+}
+
 func (s *MongoDBState) UpdateShrl(ctx context.Context, url *pb.ShortURL) (*pb.ShortURL, error) {
-	//_, err := s.collection.UpdateByID(ctx, u.ID, bson.D{
-	//	{"$set", u},
-	//})
-	//return nil, err
-	return &pb.ShortURL{}, nil
+	u, err := s.updateShrl(ctx, s.pbShrlToUrl(url))
+	if err != nil {
+		return nil, err
+	}
+	return s.urlToPbShrl(u), nil
 }
 
 func (s *MongoDBState) listShrls(ctx context.Context, search *string, count *int64, page *int64) ([]*URL, int64, error) {

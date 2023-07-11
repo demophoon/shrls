@@ -27,6 +27,26 @@ service Shrls {
 			get: "/v1/shrls"
 		};
 	};
+
+	rpc PutShrl(PutShrlRequest) returns (PutShrlResponse) {
+		option (google.api.http) = {
+			put: "/v1/shrl/{shrl.id}",
+			body: "*"
+		};
+	};
+
+	rpc PostShrl(PostShrlRequest) returns (PostShrlResponse) {
+		option (google.api.http) = {
+			post: "/v1/shrl",
+			body: "*"
+		};
+	};
+
+	rpc DeleteShrl(DeleteShrlRequest) returns (DeleteShrlResponse) {
+		option (google.api.http) = {
+			delete: "/v1/shrl/{shrl.id}",
+		};
+	};
 }
 
 // ========================================
@@ -56,6 +76,25 @@ message ListShrlsResponse {
 	repeated ShortURL shrls = 1;
 	int64 total_shrls = 2;
 }
+// PutShrl
+message PutShrlRequest {
+	ShortURL shrl = 1;
+}
+message PutShrlResponse {
+	ShortURL shrl = 1;
+}
+// PostShrl
+message PostShrlRequest {
+	ShortURL shrl = 1;
+}
+message PostShrlResponse {
+	ShortURL shrl = 1;
+}
+// DeleteShrl
+message DeleteShrlRequest {
+	Ref.ShortURL shrl = 1;
+}
+message DeleteShrlResponse { }
 
 // ========================================
 // References

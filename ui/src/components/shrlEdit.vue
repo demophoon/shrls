@@ -6,7 +6,7 @@
             <div class="box is-vcentered">
 
                 <h1 class="title">
-                    Edit /{{ shrl.alias }}
+                    Edit /{{ shrl.stub }}
                 </h1>
                 <h2 class="subtitle">
                     {{ type }}
@@ -25,7 +25,7 @@
                     <label class="label">Location</label>
                     <div class="control">
                         <input class="input" type="text" placeholder="https://example.com/"
-                            v-model="shrl.location" 
+                            v-model="shrl.content.url.url" 
                         />
                     </div>
                 </div>
@@ -34,7 +34,7 @@
                     <label class="label">Alias</label>
                     <div class="control">
                         <input class="input" type="text" placeholder="short_url"
-                            v-model="shrl.alias" 
+                            v-model="shrl.stub" 
                         />
                     </div>
                 </div>
@@ -42,14 +42,14 @@
                 <div class="field" v-if="shrl.type == ShrlType.textSnippet">
                     <label class="label">Snippet Title</label>
                     <div class="control">
-                        <input type="text" class="input" placeholder="Snippet Title" v-model="shrl.snippet_title"/>
+                        <input type="text" class="input" placeholder="Snippet Title" v-model="shrl.content.snippet.title"/>
                     </div>
                 </div>
 
                 <div class="field" v-if="shrl.type == ShrlType.textSnippet">
                     <label class="label">Snippet</label>
                     <div class="control">
-                        <textarea v-model="shrl.snippet" class="textarea" rows="6" placeholder="Snippet of text"></textarea>
+                        <textarea v-model="snippet" class="textarea" rows="6" placeholder="Snippet of text"></textarea>
                     </div>
                 </div>
 
@@ -70,7 +70,7 @@
                     </div>
                 </div>
 
-                <button v-on:click="$emit('save')" class="button is-small is-primary">Save</button>
+                <button v-on:click="save" class="button is-small is-primary">Save</button>
                 <button v-on:click="$emit('remove')" class="button is-small is-danger">Delete</button>
             </div>
         </div>
@@ -83,10 +83,15 @@ import { ShrlEnum, ShrlType } from "../index.js"
 export default {
     props: ["shrl", "editing"],
     data: function() {
-        return {
+        let d = {
             currentTag: "",
+            snippet: "",
             ShrlType,
         }
+        if (this.shrl.type == ShrlType.textSnippet) {
+            d.snippet = atob(this.shrl.content.snippet.body);
+        }
+        return d
     },
     computed: {
         type: function() {
@@ -101,6 +106,12 @@ export default {
         })
     },
     methods: {
+        save() {
+            if (this.type == ShrlType.textSnippet) {
+                this.shrl.content.snippet.body = btoa(this.snippet)
+            }
+            this.$emit("save");
+        },
         addTag() {
             this.shrl.tags.push(this.currentTag)
             this.currentTag = ""

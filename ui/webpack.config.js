@@ -11,6 +11,8 @@ module.exports = {
         filename: './[name].js',
     },
     devServer: {
+        port: 8080,
+        host: 'localhost',
         proxy: {
             "/v1": {
                 target: "http://localhost:8080",

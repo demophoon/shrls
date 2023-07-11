@@ -22,7 +22,7 @@
                     <a target="_blank" v-bind:href="shrl.content.url.url">{{ domain }}</a>
                 </span>
                 <span class="is-size-7" v-if="shrl.type == ShrlType.textSnippet">
-                    {{ shrl.snippet_title }}
+                    {{ shrl.content.snippet.title }}
                 </span>
                 <span class="is-size-7" v-if="shrl.type == ShrlType.uploadedFile">
                     Uploaded File
@@ -77,7 +77,7 @@ import { bus, ShrlType } from "../index.js"
 import copy from "copy-to-clipboard"
 
 export default {
-    props: ["shrl"],
+    props: ["shrl", "api"],
     data: function() {
         return {
             currentTag: '',
@@ -103,21 +103,22 @@ export default {
     methods: {
         save: function() {
             let el = this;
-            fetch("/api/shrl/" + el.shrl.id, {
-                method: "PUT",
-                body: JSON.stringify(el.shrl),
-            }).then(() => {
+            this.api.Shrls_PutShrl({
+                "shrl.id": el.shrl.id,
+                "body": {"shrl": el.shrl},
+            }).then((r) => {
+                console.log(r);
                 el.closeEdit();
-            })
+            }).catch(err => { throw err });
         },
         remove: function() {
             let el = this;
-            fetch("/api/shrl/" + this.shrl.id, {
-                method: "DELETE",
-                body: JSON.stringify(el.shrl),
-            }).then(() => {
+            this.api.Shrls_DeleteShrl({
+                "shrl.id": el.shrl.id,
+            }).then((r) => {
+                console.log(r);
                 el.closeEdit();
-            })
+            }).catch(err => { throw err });
         },
         edit: function() {
             this.editing = true

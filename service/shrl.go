@@ -39,3 +39,32 @@ func (s Server) ListShrls(ctx context.Context, req *pb.ListShrlsRequest) (*pb.Li
 		TotalShrls: total,
 	}, nil
 }
+
+func (s Server) PutShrl(ctx context.Context, req *pb.PutShrlRequest) (*pb.PutShrlResponse, error) {
+	shrl, err := s.state.UpdateShrl(ctx, req.Shrl)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.PutShrlResponse{
+		Shrl: shrl,
+	}, nil
+}
+
+func (s Server) PostShrl(ctx context.Context, req *pb.PostShrlRequest) (*pb.PostShrlResponse, error) {
+	shrl, err := s.state.CreateShrl(ctx, req.Shrl)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.PostShrlResponse{
+		Shrl: shrl,
+	}, nil
+}
+
+func (s Server) DeleteShrl(ctx context.Context, req *pb.DeleteShrlRequest) (*pb.DeleteShrlResponse, error) {
+	err := s.state.DeleteShrl(ctx, req.Shrl)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.DeleteShrlResponse{}, nil
+}

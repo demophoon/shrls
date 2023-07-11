@@ -41,18 +41,19 @@ export const ShrlType = {
     textSnippet: "SNIPPET",
 }
 
-const api = (await new SwaggerClient(swagger)).apis.Shrls
+const api = (await new SwaggerClient(swagger))
 
 const app = new Vue({
     el: container,
     data: function() {
         return {
+            api: api.apis.Shrls,
             shrls: [],
             count: 0,
             searchOpts: {
                 search: "",
                 page: 0,
-                limit: 15,
+                count: 15,
             },
         }
     },
@@ -67,7 +68,7 @@ const app = new Vue({
             
             <div class="columns is-centered">
                 <div class="column is-two-thirds">
-                    <shrl-omnibar />
+                    <shrl-omnibar v-bind:api='api' />
                 </div>
             </div>
 
@@ -79,7 +80,7 @@ const app = new Vue({
 
             <div class="columns is-centered">
                 <div class="column is-two-thirds">
-                    <shrl-list v-bind:shrls='shrls' v-bind:count="count" v-bind:searchOpts='searchOpts'></shrl-list>
+                    <shrl-list v-bind:shrls='shrls' v-bind:count="count" v-bind:searchOpts='searchOpts' v-bind:api='api'></shrl-list>
                 </div>
             </div>
 
@@ -97,7 +98,7 @@ const app = new Vue({
     computed: {
         skip: function() {
             let page = this.searchOpts.page || 0
-            let limit = this.searchOpts.limit || 15
+            let limit = this.searchOpts.count || 15
             return page * limit
         },
     },
@@ -114,17 +115,18 @@ const app = new Vue({
             if (fetch) { this.fetchShrls() }
         },
         fetchShrls: _.throttle(function() {
-            api.Shrls_ListShrls({
+            this.api.Shrls_ListShrls({
                 search: this.searchOpts.search,
-                page: this.page,
-            })
-                .then(res => {
-                    app.shrls = res.obj.shrls
-                    app.count = res.obj.totalShrls
-                })
-                .catch(err => { throw err});
+                page: this.searchOpts.page,
+                count: this.searchOpts.count,
+            }).then(res => {
+                app.shrls = res.obj.shrls
+                app.count = res.obj.totalShrls
+            }).catch(err => { throw err });
         }, 1000),
     },
 })
+
+console.log(app.api)
 
 export let bus = _bus;

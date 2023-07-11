@@ -1,11 +1,11 @@
 version := $(shell git describe --dirty=-changes)
 
-.PHONY: gen/server
-gen/server:
+.PHONY: proto
+proto:
 	buf generate
 
 .PHONY: ui
-ui: gen/server
+ui: proto
 	go generate ui/static.go
 
 .PHONY: bin

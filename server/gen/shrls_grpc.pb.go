@@ -19,9 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Shrls_GetShrl_FullMethodName   = "/shrls.Shrls/GetShrl"
-	Shrls_GetShrls_FullMethodName  = "/shrls.Shrls/GetShrls"
-	Shrls_ListShrls_FullMethodName = "/shrls.Shrls/ListShrls"
+	Shrls_GetShrl_FullMethodName    = "/shrls.Shrls/GetShrl"
+	Shrls_GetShrls_FullMethodName   = "/shrls.Shrls/GetShrls"
+	Shrls_ListShrls_FullMethodName  = "/shrls.Shrls/ListShrls"
+	Shrls_PutShrl_FullMethodName    = "/shrls.Shrls/PutShrl"
+	Shrls_PostShrl_FullMethodName   = "/shrls.Shrls/PostShrl"
+	Shrls_DeleteShrl_FullMethodName = "/shrls.Shrls/DeleteShrl"
 )
 
 // ShrlsClient is the client API for Shrls service.
@@ -31,6 +34,9 @@ type ShrlsClient interface {
 	GetShrl(ctx context.Context, in *GetShrlRequest, opts ...grpc.CallOption) (*GetShrlResponse, error)
 	GetShrls(ctx context.Context, in *GetShrlsRequest, opts ...grpc.CallOption) (*GetShrlsResponse, error)
 	ListShrls(ctx context.Context, in *ListShrlsRequest, opts ...grpc.CallOption) (*ListShrlsResponse, error)
+	PutShrl(ctx context.Context, in *PutShrlRequest, opts ...grpc.CallOption) (*PutShrlResponse, error)
+	PostShrl(ctx context.Context, in *PostShrlRequest, opts ...grpc.CallOption) (*PostShrlResponse, error)
+	DeleteShrl(ctx context.Context, in *DeleteShrlRequest, opts ...grpc.CallOption) (*DeleteShrlResponse, error)
 }
 
 type shrlsClient struct {
@@ -68,6 +74,33 @@ func (c *shrlsClient) ListShrls(ctx context.Context, in *ListShrlsRequest, opts 
 	return out, nil
 }
 
+func (c *shrlsClient) PutShrl(ctx context.Context, in *PutShrlRequest, opts ...grpc.CallOption) (*PutShrlResponse, error) {
+	out := new(PutShrlResponse)
+	err := c.cc.Invoke(ctx, Shrls_PutShrl_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *shrlsClient) PostShrl(ctx context.Context, in *PostShrlRequest, opts ...grpc.CallOption) (*PostShrlResponse, error) {
+	out := new(PostShrlResponse)
+	err := c.cc.Invoke(ctx, Shrls_PostShrl_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *shrlsClient) DeleteShrl(ctx context.Context, in *DeleteShrlRequest, opts ...grpc.CallOption) (*DeleteShrlResponse, error) {
+	out := new(DeleteShrlResponse)
+	err := c.cc.Invoke(ctx, Shrls_DeleteShrl_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ShrlsServer is the server API for Shrls service.
 // All implementations should embed UnimplementedShrlsServer
 // for forward compatibility
@@ -75,6 +108,9 @@ type ShrlsServer interface {
 	GetShrl(context.Context, *GetShrlRequest) (*GetShrlResponse, error)
 	GetShrls(context.Context, *GetShrlsRequest) (*GetShrlsResponse, error)
 	ListShrls(context.Context, *ListShrlsRequest) (*ListShrlsResponse, error)
+	PutShrl(context.Context, *PutShrlRequest) (*PutShrlResponse, error)
+	PostShrl(context.Context, *PostShrlRequest) (*PostShrlResponse, error)
+	DeleteShrl(context.Context, *DeleteShrlRequest) (*DeleteShrlResponse, error)
 }
 
 // UnimplementedShrlsServer should be embedded to have forward compatible implementations.
@@ -89,6 +125,15 @@ func (UnimplementedShrlsServer) GetShrls(context.Context, *GetShrlsRequest) (*Ge
 }
 func (UnimplementedShrlsServer) ListShrls(context.Context, *ListShrlsRequest) (*ListShrlsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListShrls not implemented")
+}
+func (UnimplementedShrlsServer) PutShrl(context.Context, *PutShrlRequest) (*PutShrlResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PutShrl not implemented")
+}
+func (UnimplementedShrlsServer) PostShrl(context.Context, *PostShrlRequest) (*PostShrlResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostShrl not implemented")
+}
+func (UnimplementedShrlsServer) DeleteShrl(context.Context, *DeleteShrlRequest) (*DeleteShrlResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteShrl not implemented")
 }
 
 // UnsafeShrlsServer may be embedded to opt out of forward compatibility for this service.
@@ -156,6 +201,60 @@ func _Shrls_ListShrls_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Shrls_PutShrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PutShrlRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ShrlsServer).PutShrl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Shrls_PutShrl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ShrlsServer).PutShrl(ctx, req.(*PutShrlRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Shrls_PostShrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PostShrlRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ShrlsServer).PostShrl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Shrls_PostShrl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ShrlsServer).PostShrl(ctx, req.(*PostShrlRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Shrls_DeleteShrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteShrlRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ShrlsServer).DeleteShrl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Shrls_DeleteShrl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ShrlsServer).DeleteShrl(ctx, req.(*DeleteShrlRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Shrls_ServiceDesc is the grpc.ServiceDesc for Shrls service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -174,6 +273,18 @@ var Shrls_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListShrls",
 			Handler:    _Shrls_ListShrls_Handler,
+		},
+		{
+			MethodName: "PutShrl",
+			Handler:    _Shrls_PutShrl_Handler,
+		},
+		{
+			MethodName: "PostShrl",
+			Handler:    _Shrls_PostShrl_Handler,
+		},
+		{
+			MethodName: "DeleteShrl",
+			Handler:    _Shrls_DeleteShrl_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

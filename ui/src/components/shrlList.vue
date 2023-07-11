@@ -3,7 +3,7 @@
 
         <div class="list has-visible-pointer-control has-overflow-ellipsis has-hoverable-list-items">
             <span v-for="shrl in shrls">
-                <shrl-item v-bind:shrl="shrl"></shrl-item>
+                <shrl-item v-bind:shrl="shrl" v-bind:api="api"></shrl-item>
             </span>
         </div>
 
@@ -57,10 +57,10 @@ export default {
             return ps.splice(0, (endPage - startPage) + 1)
         },
         pageCount: function() {
-            return Math.ceil(this.count / this.searchOpts.limit)
+            return Math.ceil(this.count / this.searchOpts.count)
         }
     },
-    props: ["shrls", "count", "searchOpts"],
+    props: ["shrls", "count", "searchOpts", "api"],
     methods: {
         nextPage: function() {
             this.setPage(this.page + 1)
