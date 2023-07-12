@@ -2,8 +2,6 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "rearch" ]
-  pull_request:
     branches: [ "main" ]
 
 jobs:
