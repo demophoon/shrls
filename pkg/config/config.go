@@ -28,7 +28,7 @@ const (
 )
 
 type Config struct {
-	BaseURL          string
+	BaseURL          string `mapstructure:"base_url"`
 	Port             int
 	DefaultRedirect  string `mapstructure:"default_redirect"`
 	TerminalRedirect bool

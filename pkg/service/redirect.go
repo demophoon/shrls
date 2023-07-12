@@ -15,6 +15,12 @@ func (s *ShrlsService) Redirect(w http.ResponseWriter, r *http.Request) {
 	shrl = strings.TrimPrefix(shrl, "/")
 
 	parts := strings.Split(shrl, ".")
+
+	var ext string
+	if len(parts) > 1 {
+		ext = parts[1]
+	}
+
 	ref := &pb.Ref_ShortURL{
 		Ref: &pb.Ref_ShortURL_Alias{
 			Alias: parts[0],
@@ -33,16 +39,26 @@ func (s *ShrlsService) Redirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch redirect.Content.Content.(type) {
-	case *pb.ExpandedURL_Url:
-		http.Redirect(w, r, redirect.Content.GetUrl().Url, http.StatusTemporaryRedirect)
+	switch ext {
+	case "qr", "qrcode":
+		qr, err := s.ToQR(redirect)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Unable to convert to QR: %s", err), http.StatusInternalServerError)
+			return
+		}
+		w.Write(qr)
+	default:
+		switch redirect.Content.Content.(type) {
+		case *pb.ExpandedURL_Url:
+			http.Redirect(w, r, redirect.Content.GetUrl().Url, http.StatusTemporaryRedirect)
 
-	case *pb.ExpandedURL_File:
-		file := redirect.Content.GetFile()
-		w.Write(file)
+		case *pb.ExpandedURL_File:
+			file := redirect.Content.GetFile()
+			w.Write(file)
 
-	case *pb.ExpandedURL_Snippet:
-		w.Write([]byte(redirect.Content.GetSnippet().Body))
+		case *pb.ExpandedURL_Snippet:
+			w.Write([]byte(redirect.Content.GetSnippet().Body))
+		}
 	}
 
 	log.Debug(redirect)
