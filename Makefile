@@ -6,6 +6,7 @@ proto:
 
 .PHONY: ui
 ui: proto
+	cd ui && npm i
 	go generate ui/static.go
 
 .PHONY: bin
