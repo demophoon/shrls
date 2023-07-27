@@ -6,6 +6,8 @@ import (
 
 type ServerHandler interface {
 	pb.ShrlsServer
+	pb.FileUploadServer
 
 	SetState(ServerState)
+	SetStorage(ServerStorage)
 }

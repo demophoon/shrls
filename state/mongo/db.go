@@ -3,11 +3,10 @@ package mongostate
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/server"
 
+	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -15,7 +14,6 @@ import (
 type MongoDBState struct {
 	client     *mongo.Client
 	collection *mongo.Collection
-	storage    server.ServerStorage
 }
 
 func (s *MongoDBState) init(conn string) error {
@@ -38,8 +36,4 @@ func New(c *config.Config) *MongoDBState {
 		log.Fatal("Couldn't initialize MongoDBState. %s", err)
 	}
 	return state
-}
-
-func (s *MongoDBState) SetStorage(storage server.ServerStorage) {
-	s.storage = storage
 }

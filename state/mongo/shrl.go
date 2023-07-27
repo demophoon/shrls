@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
-	"os"
 	"time"
 
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
@@ -75,13 +74,11 @@ func (s *MongoDBState) urlToPbShrl(u *URL) *pb.ShortURL {
 		}
 	case UploadedFile:
 		contentType = pb.ShortURL_UPLOAD
-		f, err := s.storage.ReadFile(u.UploadLocation)
-		if err != nil {
-			log.Error("Unable to retrieve file", "URL ID", u.ID)
-		}
 		content = pb.ExpandedURL{
 			Content: &pb.ExpandedURL_File{
-				File: f,
+				File: &pb.Upload{
+					Ref: u.UploadLocation,
+				},
 			},
 		}
 	case TextSnippet:
@@ -129,12 +126,7 @@ func (s *MongoDBState) pbShrlToUrl(u *pb.ShortURL) *URL {
 		url.Location = u.Content.GetUrl().Url
 	case *pb.ExpandedURL_File:
 		url.Type = UploadedFile
-		key, err := s.storage.CreateFile(u.Content.GetFile())
-		if err != nil {
-			log.Error("Failed to create file for url", u.Id)
-		} else {
-			url.UploadLocation = key
-		}
+		url.UploadLocation = u.Content.GetFile().GetRef()
 	case *pb.ExpandedURL_Snippet:
 		url.Type = TextSnippet
 		url.Snippet = string(u.Content.GetSnippet().GetBody())
@@ -331,11 +323,6 @@ func (s *MongoDBState) DeleteShrl(ctx context.Context, ref *pb.Ref_ShortURL) err
 	u, err := s.getShrl(ctx, ref)
 	if err != nil {
 		return err
-	}
-
-	switch u.Type {
-	case UploadedFile:
-		os.Remove(u.UploadLocation)
 	}
 
 	_, err = s.collection.DeleteOne(ctx, bson.M{"_id": u.ID})

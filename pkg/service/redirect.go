@@ -53,8 +53,12 @@ func (s *ShrlsService) Redirect(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, redirect.Content.GetUrl().Url, http.StatusTemporaryRedirect)
 
 		case *pb.ExpandedURL_File:
-			file := redirect.Content.GetFile()
-			w.Write(file)
+			key := redirect.Content.GetFile().Ref
+			f, err := s.storage.ReadFile(key)
+			if err != nil {
+				http.Error(w, "Unable to locate file", http.StatusInternalServerError)
+			}
+			w.Write(f)
 
 		case *pb.ExpandedURL_Snippet:
 			w.Write([]byte(redirect.Content.GetSnippet().Body))

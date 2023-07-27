@@ -62,7 +62,18 @@ func (s Server) PostShrl(ctx context.Context, req *pb.PostShrlRequest) (*pb.Post
 }
 
 func (s Server) DeleteShrl(ctx context.Context, req *pb.DeleteShrlRequest) (*pb.DeleteShrlResponse, error) {
-	err := s.state.DeleteShrl(ctx, req.Shrl)
+	shrl, err := s.state.GetShrl(ctx, req.Shrl)
+	if err != nil {
+		return nil, err
+	}
+
+	// Delete files uploaded via the FileUpload service
+	switch shrl.Content.Content.(type) {
+	case *pb.ExpandedURL_File:
+		s.storage.DeleteFile(shrl.Content.GetFile().Ref)
+	}
+
+	err = s.state.DeleteShrl(ctx, req.Shrl)
 	if err != nil {
 		return nil, err
 	}

@@ -12,7 +12,7 @@ import (
 	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
 	gw "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen/gateway"
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/service"
-	mongostate "gitlab.cascadia.demophoon.com/demophoon/go-shrls/state/mongo"
+	boltstate "gitlab.cascadia.demophoon.com/demophoon/go-shrls/state/boltdb"
 	directorystate "gitlab.cascadia.demophoon.com/demophoon/go-shrls/storage/directory"
 	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/ui"
 
@@ -23,9 +23,9 @@ import (
 )
 
 type ShrlsService struct {
-	server  *shrls.ServerHandler
-	State   *shrls.ServerState
-	storage *shrls.ServerStorage
+	server  shrls.ServerHandler
+	State   shrls.ServerState
+	storage shrls.ServerStorage
 	config  *config.Config
 }
 
@@ -33,13 +33,19 @@ func (s *ShrlsService) Run() error {
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
 
-	pb.RegisterShrlsServer(grpcServer, *s.server)
+	pb.RegisterShrlsServer(grpcServer, s.server)
+	pb.RegisterFileUploadServer(grpcServer, s.server)
+
+	ctx := context.Background()
+	grpcAddr := fmt.Sprintf("localhost:%d", s.config.Port)
+	grpcOpts := []grpc.DialOption{grpc.WithInsecure()}
 
 	mux := runtime.NewServeMux()
-	err := gw.RegisterShrlsHandlerFromEndpoint(context.Background(), mux, fmt.Sprintf("localhost:%d", s.config.Port), []grpc.DialOption{grpc.WithInsecure()})
+	err := gw.RegisterShrlsHandlerFromEndpoint(ctx, mux, grpcAddr, grpcOpts)
 	if err != nil {
 		return err
 	}
+	err = gw.RegisterFileUploadHandlerFromEndpoint(ctx, mux, grpcAddr, grpcOpts)
 
 	sub, err := fs.Sub(ui.Content, "dist")
 	if err != nil {
@@ -71,15 +77,15 @@ func (s *ShrlsService) Run() error {
 }
 
 func (s *ShrlsService) SetState(state shrls.ServerState) {
-	s.State = &state
+	s.State = state
 }
 
 func (s *ShrlsService) SetServer(server shrls.ServerHandler) {
-	s.server = &server
+	s.server = server
 }
 
 func (s *ShrlsService) SetStorage(storage shrls.ServerStorage) {
-	s.storage = &storage
+	s.storage = storage
 }
 
 func (s *ShrlsService) SetConfig(config *config.Config) {
@@ -90,22 +96,26 @@ func (s *ShrlsService) SetConfig(config *config.Config) {
 // Shrls service with a mongodb state backend. Other backends can be setup by
 // manually configuring the ShrlsService{} type itself.
 func New(config *config.Config) ShrlsService {
-	var s ShrlsService
+	s := ShrlsService{}
 
 	s.SetConfig(config)
 
 	// Set ServerStorage
-	var storage *directorystate.DirectoryStorage = directorystate.New(config)
+	storage := directorystate.New(config)
 	s.SetStorage(storage)
 
 	// Set ServerState
-	state := mongostate.New(config)
-	state.SetStorage(storage)
+	//state := mongostate.New(config)
+	//s.SetState(state)
+
+	// Set BoltDBState
+	state := boltstate.New(config)
 	s.SetState(state)
 
 	// Set Server Implementation
 	impl := service.New(config)
 	impl.SetState(state)
+	impl.SetStorage(storage)
 	s.SetServer(impl)
 
 	return s

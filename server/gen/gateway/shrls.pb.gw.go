@@ -380,6 +380,40 @@ func local_request_Shrls_DeleteShrl_0(ctx context.Context, marshaler runtime.Mar
 
 }
 
+func request_FileUpload_PostFileUpload_0(ctx context.Context, marshaler runtime.Marshaler, client extGen.FileUploadClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq extGen.PostFileUploadRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.PostFileUpload(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_FileUpload_PostFileUpload_0(ctx context.Context, marshaler runtime.Marshaler, server extGen.FileUploadServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq extGen.PostFileUploadRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.PostFileUpload(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 // RegisterShrlsHandlerServer registers the http handlers for service Shrls to "mux".
 // UnaryRPC     :call ShrlsServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -533,6 +567,40 @@ func RegisterShrlsHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Shrls_DeleteShrl_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+// RegisterFileUploadHandlerServer registers the http handlers for service FileUpload to "mux".
+// UnaryRPC     :call FileUploadServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterFileUploadHandlerFromEndpoint instead.
+func RegisterFileUploadHandlerServer(ctx context.Context, mux *runtime.ServeMux, server extGen.FileUploadServer) error {
+
+	mux.Handle("POST", pattern_FileUpload_PostFileUpload_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/shrls.FileUpload/PostFileUpload", runtime.WithHTTPPathPattern("/v1/upload"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_FileUpload_PostFileUpload_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_FileUpload_PostFileUpload_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -738,4 +806,75 @@ var (
 	forward_Shrls_PostShrl_0 = runtime.ForwardResponseMessage
 
 	forward_Shrls_DeleteShrl_0 = runtime.ForwardResponseMessage
+)
+
+// RegisterFileUploadHandlerFromEndpoint is same as RegisterFileUploadHandler but
+// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
+func RegisterFileUploadHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+	conn, err := grpc.DialContext(ctx, endpoint, opts...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+			return
+		}
+		go func() {
+			<-ctx.Done()
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+		}()
+	}()
+
+	return RegisterFileUploadHandler(ctx, mux, conn)
+}
+
+// RegisterFileUploadHandler registers the http handlers for service FileUpload to "mux".
+// The handlers forward requests to the grpc endpoint over "conn".
+func RegisterFileUploadHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterFileUploadHandlerClient(ctx, mux, extGen.NewFileUploadClient(conn))
+}
+
+// RegisterFileUploadHandlerClient registers the http handlers for service FileUpload
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "extGen.FileUploadClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "extGen.FileUploadClient"
+// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
+// "extGen.FileUploadClient" to call the correct interceptors.
+func RegisterFileUploadHandlerClient(ctx context.Context, mux *runtime.ServeMux, client extGen.FileUploadClient) error {
+
+	mux.Handle("POST", pattern_FileUpload_PostFileUpload_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/shrls.FileUpload/PostFileUpload", runtime.WithHTTPPathPattern("/v1/upload"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_FileUpload_PostFileUpload_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_FileUpload_PostFileUpload_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+var (
+	pattern_FileUpload_PostFileUpload_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "upload"}, ""))
+)
+
+var (
+	forward_FileUpload_PostFileUpload_0 = runtime.ForwardResponseMessage
 )

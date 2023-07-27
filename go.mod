@@ -3,7 +3,9 @@ module gitlab.cascadia.demophoon.com/demophoon/go-shrls
 go 1.18
 
 require (
+	github.com/asdine/storm/v3 v3.2.1
 	github.com/gabriel-vasile/mimetype v1.4.0
+	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0
 	github.com/raphamorim/go-rainbow v0.1.0
 	github.com/sirupsen/logrus v1.9.3
@@ -49,6 +51,7 @@ require (
 	github.com/xdg-go/scram v1.0.2 // indirect
 	github.com/xdg-go/stringprep v1.0.2 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
+	go.etcd.io/bbolt v1.3.7 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/text v0.9.0 // indirect

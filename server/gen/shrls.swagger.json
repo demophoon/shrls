@@ -7,6 +7,9 @@
   "tags": [
     {
       "name": "Shrls"
+    },
+    {
+      "name": "FileUpload"
     }
   ],
   "consumes": [
@@ -186,7 +189,7 @@
                   "title": "========================================\nObjects\n========================================\nShortened Urls"
                 }
               },
-              "title": "PutShrl"
+              "title": "Shrls.PutShrl"
             }
           }
         ],
@@ -274,9 +277,49 @@
           "Shrls"
         ]
       }
+    },
+    "/v1/upload": {
+      "post": {
+        "operationId": "FileUpload_PostFileUpload",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/shrlsPostFileUploadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/shrlsPostFileUploadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "FileUpload"
+        ]
+      }
     }
   },
   "definitions": {
+    "RefFileUpload": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
     "ShortURLShortURLType": {
       "type": "string",
       "enum": [
@@ -324,8 +367,7 @@
           "$ref": "#/definitions/shrlsRedirect"
         },
         "file": {
-          "type": "string",
-          "format": "byte"
+          "$ref": "#/definitions/shrlsUpload"
         },
         "snippet": {
           "$ref": "#/definitions/shrlsSnippet"
@@ -368,6 +410,24 @@
         }
       }
     },
+    "shrlsPostFileUploadRequest": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string",
+          "format": "byte"
+        }
+      },
+      "title": "FileUpload.PostFileUpload"
+    },
+    "shrlsPostFileUploadResponse": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "$ref": "#/definitions/RefFileUpload"
+        }
+      }
+    },
     "shrlsPostShrlRequest": {
       "type": "object",
       "properties": {
@@ -375,7 +435,7 @@
           "$ref": "#/definitions/shrlsShortURL"
         }
       },
-      "title": "PostShrl"
+      "title": "Shrls.PostShrl"
     },
     "shrlsPostShrlResponse": {
       "type": "object",
@@ -469,6 +529,16 @@
         }
       },
       "title": "Text snippets"
+    },
+    "shrlsUpload": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "title": "Reference to pass to storage backend to find uploaded file"
+        }
+      },
+      "title": "File Upload"
     }
   }
 }

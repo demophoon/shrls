@@ -38,9 +38,11 @@ type Config struct {
 	StateBackend          StateBackend
 	MongoConnectionString string `mapstructure:"mongo_uri"`
 
+	BoltPath string `mapstructure:"bolt_path"`
+
 	// Uploads
 	UploadBackend   UploadBackend
-	UploadDirectory string
+	UploadDirectory string `mapstructure:"upload_directory"`
 
 	// Auth
 	AuthBackend   AuthBackend
@@ -94,8 +96,14 @@ func bindConfig(rootCmd *cobra.Command) {
 	viper.BindEnv("upload_directory")
 	viper.SetDefault("upload_directory", "./uploads")
 
+	viper.BindEnv("state_backend")
+	viper.SetDefault("state_backend", "mongo")
+
 	viper.BindEnv("mongo_uri")
 	viper.SetDefault("mongo_uri", "mongodb://mongo:password@localhost:27017")
+
+	viper.BindEnv("bolt_path")
+	viper.SetDefault("bolt_path", "shrls.db")
 
 	viper.BindEnv("admin_username")
 	viper.SetDefault("admin_username", "")

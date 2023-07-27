@@ -145,7 +145,8 @@ export default {
         },
         // API posts
         postShrl: function(url) {
-            this.api.Shrls_PostShrl({
+            // TODO
+            this.api.Shrls.Shrls_PostShrl({
                 "body": {shrl: {
                     content: url,
                 }},
@@ -161,27 +162,18 @@ export default {
         createSnippet: function(title, body) {
             this.postShrl({ snippet: { title, body: btoa(body) }})
         },
-        createUpload: function(file) {
+        createUpload: function(f) {
             var reader = new FileReader();
-            reader.readAsDataURL(file)
+            reader.readAsDataURL(f)
             reader.onload = () => {
-                let f = reader.result.split(",")[1]
-                this.postShrl({ file: f })
+                let file = reader.result.split(",")[1]
+                this.api.FileUpload.FileUpload_PostFileUpload({
+                    "body": { file }
+                }).then((res) => {
+                    let uploadRef = res.obj.file.id
+                    this.postShrl({ file: { ref: uploadRef } })
+                })
             }
-            return
-            this.postShrl({ file: btoa(body) })
-            let fd = new FormData()
-            fd.append("file", file)
-            fetch("/api/upload", {
-                method: "POST",
-                body: fd,
-            }).then((d) => {
-                return d.json()
-            }).then((d) => {
-                this.copyAlias(d.shrl.alias)
-                bus.$emit("load-shrls")
-                this.resetOmnibar()
-            })
         },
     }
 }

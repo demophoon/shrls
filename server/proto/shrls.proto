@@ -49,24 +49,34 @@ service Shrls {
 	};
 }
 
+// File Upload Service
+service FileUpload {
+	rpc PostFileUpload(PostFileUploadRequest) returns (PostFileUploadResponse) {
+		option (google.api.http) = {
+			post: "/v1/upload",
+			body: "*"
+		};
+	};
+}
+
 // ========================================
 // Server Methods
 // ========================================
-// GetShrl
+// Shrls.GetShrl
 message GetShrlRequest {
 	Ref.ShortURL shrl = 1;
 }
 message GetShrlResponse {
 	ShortURL shrl = 1;
 }
-// GetShrls
+// Shrls.GetShrls
 message GetShrlsRequest {
 	Ref.ShortURL shrl = 1;
 }
 message GetShrlsResponse {
 	repeated ShortURL shrls = 1;
 }
-// ListShrls (Paginated)
+// Shrls.ListShrls (Paginated)
 message ListShrlsRequest {
 	optional string search = 1;
 	optional int64 page = 2;
@@ -76,25 +86,33 @@ message ListShrlsResponse {
 	repeated ShortURL shrls = 1;
 	int64 total_shrls = 2;
 }
-// PutShrl
+// Shrls.PutShrl
 message PutShrlRequest {
 	ShortURL shrl = 1;
 }
 message PutShrlResponse {
 	ShortURL shrl = 1;
 }
-// PostShrl
+// Shrls.PostShrl
 message PostShrlRequest {
 	ShortURL shrl = 1;
 }
 message PostShrlResponse {
 	ShortURL shrl = 1;
 }
-// DeleteShrl
+// Shrls.DeleteShrl
 message DeleteShrlRequest {
 	Ref.ShortURL shrl = 1;
 }
 message DeleteShrlResponse { }
+
+// FileUpload.PostFileUpload
+message PostFileUploadRequest {
+	bytes file = 1;
+}
+message PostFileUploadResponse {
+	Ref.FileUpload file = 1;
+}
 
 // ========================================
 // References
@@ -105,6 +123,12 @@ message Ref {
 		oneof ref {
 			string id = 1;
 			string alias = 2;
+		}
+	}
+
+	message FileUpload {
+		oneof ref {
+			string id = 1;
 		}
 	}
 }
@@ -142,10 +166,15 @@ message Redirect {
 	bytes favicon = 2;
 }
 
+// File Upload
+message Upload {
+	string ref = 1; // Reference to pass to storage backend to find uploaded file
+}
+
 message ExpandedURL {
 	oneof content {
 		Redirect url = 1;
-		bytes    file = 2;
+		Upload   file = 2;
 		Snippet  snippet = 3;
 	}
 }

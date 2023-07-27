@@ -103,7 +103,7 @@ export default {
     methods: {
         save: function() {
             let el = this;
-            this.api.Shrls_PutShrl({
+            this.api.Shrls.Shrls_PutShrl({
                 "shrl.id": el.shrl.id,
                 "body": {"shrl": el.shrl},
             }).then((r) => {
@@ -113,7 +113,7 @@ export default {
         },
         remove: function() {
             let el = this;
-            this.api.Shrls_DeleteShrl({
+            this.api.Shrls.Shrls_DeleteShrl({
                 "shrl.id": el.shrl.id,
             }).then((r) => {
                 console.log(r);

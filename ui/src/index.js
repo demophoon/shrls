@@ -47,7 +47,7 @@ const app = new Vue({
     el: container,
     data: function() {
         return {
-            api: api.apis.Shrls,
+            api: api.apis,
             shrls: [],
             count: 0,
             searchOpts: {
@@ -115,7 +115,7 @@ const app = new Vue({
             if (fetch) { this.fetchShrls() }
         },
         fetchShrls: _.throttle(function() {
-            this.api.Shrls_ListShrls({
+            this.api.Shrls.Shrls_ListShrls({
                 search: this.searchOpts.search,
                 page: this.searchOpts.page,
                 count: this.searchOpts.count,

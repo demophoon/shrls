@@ -290,3 +290,91 @@ var Shrls_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "shrls.proto",
 }
+
+const (
+	FileUpload_PostFileUpload_FullMethodName = "/shrls.FileUpload/PostFileUpload"
+)
+
+// FileUploadClient is the client API for FileUpload service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type FileUploadClient interface {
+	PostFileUpload(ctx context.Context, in *PostFileUploadRequest, opts ...grpc.CallOption) (*PostFileUploadResponse, error)
+}
+
+type fileUploadClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewFileUploadClient(cc grpc.ClientConnInterface) FileUploadClient {
+	return &fileUploadClient{cc}
+}
+
+func (c *fileUploadClient) PostFileUpload(ctx context.Context, in *PostFileUploadRequest, opts ...grpc.CallOption) (*PostFileUploadResponse, error) {
+	out := new(PostFileUploadResponse)
+	err := c.cc.Invoke(ctx, FileUpload_PostFileUpload_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// FileUploadServer is the server API for FileUpload service.
+// All implementations should embed UnimplementedFileUploadServer
+// for forward compatibility
+type FileUploadServer interface {
+	PostFileUpload(context.Context, *PostFileUploadRequest) (*PostFileUploadResponse, error)
+}
+
+// UnimplementedFileUploadServer should be embedded to have forward compatible implementations.
+type UnimplementedFileUploadServer struct {
+}
+
+func (UnimplementedFileUploadServer) PostFileUpload(context.Context, *PostFileUploadRequest) (*PostFileUploadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostFileUpload not implemented")
+}
+
+// UnsafeFileUploadServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to FileUploadServer will
+// result in compilation errors.
+type UnsafeFileUploadServer interface {
+	mustEmbedUnimplementedFileUploadServer()
+}
+
+func RegisterFileUploadServer(s grpc.ServiceRegistrar, srv FileUploadServer) {
+	s.RegisterService(&FileUpload_ServiceDesc, srv)
+}
+
+func _FileUpload_PostFileUpload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PostFileUploadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileUploadServer).PostFileUpload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FileUpload_PostFileUpload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileUploadServer).PostFileUpload(ctx, req.(*PostFileUploadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// FileUpload_ServiceDesc is the grpc.ServiceDesc for FileUpload service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var FileUpload_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "shrls.FileUpload",
+	HandlerType: (*FileUploadServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "PostFileUpload",
+			Handler:    _FileUpload_PostFileUpload_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "shrls.proto",
+}
