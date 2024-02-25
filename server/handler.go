@@ -1,7 +1,7 @@
 package server
 
 import (
-	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
+	pb "github.com/demophoon/shrls/server/gen"
 )
 
 type ServerHandler interface {

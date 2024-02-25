@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
+	pb "github.com/demophoon/shrls/server/gen"
 )
 
 type ServerState interface {

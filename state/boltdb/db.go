@@ -1,7 +1,7 @@
 package boltstate
 
 import (
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
+	"github.com/demophoon/shrls/pkg/config"
 
 	storm "github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"

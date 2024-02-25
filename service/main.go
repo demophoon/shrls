@@ -1,8 +1,8 @@
 package service
 
 import (
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/server"
+	"github.com/demophoon/shrls/pkg/config"
+	"github.com/demophoon/shrls/server"
 )
 
 type Server struct {

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	pb "github.com/demophoon/shrls/server/gen"
 	log "github.com/sirupsen/logrus"
-	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
 )
 
 func (s *ShrlsService) Redirect(w http.ResponseWriter, r *http.Request) {

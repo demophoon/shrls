@@ -4,7 +4,7 @@ import (
 	"os"
 	"path"
 
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
+	"github.com/demophoon/shrls/pkg/config"
 
 	"github.com/google/uuid"
 )

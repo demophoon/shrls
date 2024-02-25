@@ -13,9 +13,9 @@ import (
 	"io"
 	"net/http"
 
+	extGen "github.com/demophoon/shrls/server/gen"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
-	extGen "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"

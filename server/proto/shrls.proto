@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen";
+option go_package = "github.com/demophoon/shrls/server/gen";
 
 import "google/api/annotations.proto";
 

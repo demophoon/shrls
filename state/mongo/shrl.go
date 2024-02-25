@@ -6,8 +6,8 @@ import (
 	"math/rand"
 	"time"
 
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
-	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
+	"github.com/demophoon/shrls/server/gen"
+	pb "github.com/demophoon/shrls/server/gen"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/thanhpk/randstr"

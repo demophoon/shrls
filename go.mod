@@ -1,4 +1,4 @@
-module gitlab.cascadia.demophoon.com/demophoon/go-shrls
+module github.com/demophoon/shrls
 
 go 1.18
 

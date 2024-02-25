@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
+	pb "github.com/demophoon/shrls/server/gen"
 
 	storm "github.com/asdine/storm/v3"
 	"github.com/asdine/storm/v3/q"

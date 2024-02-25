@@ -3,8 +3,8 @@ package config
 import (
 	"fmt"
 
+	"github.com/demophoon/shrls/pkg/config"
 	"github.com/spf13/cobra"
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
 )
 
 // TODO: Write config Viewing and Modifying CLI

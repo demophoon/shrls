@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli"
+	"github.com/demophoon/shrls/pkg/cli"
 )
 
 func main() {

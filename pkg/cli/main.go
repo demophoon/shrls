@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	configcmd "github.com/demophoon/shrls/pkg/cli/config"
+	"github.com/demophoon/shrls/pkg/cli/serve"
+	"github.com/demophoon/shrls/pkg/cli/shrls"
+	"github.com/demophoon/shrls/pkg/config"
 	"github.com/spf13/cobra"
-	configcmd "gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli/config"
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli/serve"
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli/shrls"
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
 )
 
 var rootCmd = &cobra.Command{

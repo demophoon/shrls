@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
+	"github.com/demophoon/shrls/pkg/config"
 
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"

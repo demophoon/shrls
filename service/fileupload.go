@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
+	pb "github.com/demophoon/shrls/server/gen"
 )
 
 func (s Server) PostFileUpload(ctx context.Context, req *pb.PostFileUploadRequest) (*pb.PostFileUploadResponse, error) {

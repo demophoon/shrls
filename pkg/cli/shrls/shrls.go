@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/config"
-	"gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/service"
-	pb "gitlab.cascadia.demophoon.com/demophoon/go-shrls/server/gen"
+	"github.com/demophoon/shrls/pkg/config"
+	"github.com/demophoon/shrls/pkg/service"
+	pb "github.com/demophoon/shrls/server/gen"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
