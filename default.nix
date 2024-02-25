@@ -24,7 +24,7 @@ in
 
       # Build environment
       gnumake42
-      go_1_18
+      go
 
       # Backend
       buf
