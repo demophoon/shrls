@@ -1,5 +1,7 @@
 let
-  pkgs = import <nixpkgs> {};
+  pkgs = import <nixpkgs> {
+    config.allowUnfree = true;
+  };
 in
   pkgs.mkShell {
     buildInputs = with pkgs; [
@@ -7,9 +9,8 @@ in
       gotools
       gopls
       go-outline
-      gocode
+      gopls
       gopkgs
-      gocode-gomod
       godef
       golint
       delve
@@ -21,6 +22,7 @@ in
       gotags
       impl
       iferr
+      delve
 
       # Build environment
       gnumake42
