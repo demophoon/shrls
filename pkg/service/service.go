@@ -4,12 +4,15 @@ import (
 	"context"
 	"crypto/sha256"
 	"crypto/subtle"
+	"encoding/base64"
 	"fmt"
 	"io/fs"
 	"net"
 	"net/http"
+	"strings"
 
 	"github.com/demophoon/shrls/pkg/config"
+	"github.com/demophoon/shrls/server"
 	shrls "github.com/demophoon/shrls/server"
 	pb "github.com/demophoon/shrls/server/gen"
 	gw "github.com/demophoon/shrls/server/gen/gateway"
@@ -76,19 +79,35 @@ func (s *ShrlsService) BasicAuthHandler(next http.HandlerFunc) http.HandlerFunc 
 }
 
 func (s *ShrlsService) GRPCAuth(ctx context.Context) (context.Context, error) {
+	unauthenticated_error := status.Error(codes.Unauthenticated, "Unauthenticated")
+
 	// Backend auth not configured
 	if s.config.AuthBackend == nil {
 		return ctx, nil
 	}
 
-	token, err := auth.AuthFromMD(ctx, "bearer")
+	token, err := auth.AuthFromMD(ctx, "basic")
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "Unauthenticated")
+		log.Errorf("Unautnenticated: %s", err)
+		return nil, unauthenticated_error
 	}
 
-	log.Debugf("Token: %#v", token)
+	c, err := base64.StdEncoding.DecodeString(token[:])
+	if err != nil {
+		log.Errorf("Error decoding token: %s", err)
+		return nil, unauthenticated_error
+	}
+	cs := string(c)
+	username, password, ok := strings.Cut(cs, ":")
+	if !ok {
+		log.Errorf("Invalid basic auth string: %s", err)
+		return nil, unauthenticated_error
+	}
+	if s.checkBasicAuthOk(username, password) {
+		return ctx, nil
+	}
 
-	return nil, status.Error(codes.Unauthenticated, "Unauthenticated")
+	return nil, unauthenticated_error
 }
 
 func (s *ShrlsService) Run() error {
