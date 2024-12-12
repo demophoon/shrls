@@ -16,6 +16,6 @@ var versionCmd = &cobra.Command{
 		fmt.Print(rainbow.Bold(rainbow.Hex("#7951A1", "SHRLS")))
 		fmt.Print(rainbow.Hex("#FFFFFF", " "))
 		fmt.Println(rainbow.Hex("#FFFFFF", version.Version))
-		fmt.Println(rainbow.Hex("#666666", fmt.Sprintf("Build: %s", version.Build)))
+		fmt.Println(rainbow.Dim(fmt.Sprintf("Build: %s", version.Build)))
 	},
 }
