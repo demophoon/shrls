@@ -1,4 +1,4 @@
-FROM nixos/nix AS builder
+FROM nixos/nix:2.24.9 AS builder
 
 RUN nix-channel --add "https://github.com/NixOS/nixpkgs/archive/63dacb46bf939521bdc93981b4cbb7ecb58427a0.tar.gz" nixpkgs && nix-env --install direnv
 
