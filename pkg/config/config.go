@@ -131,7 +131,7 @@ func bindConfig() {
 
 	viper.BindEnv("uploads.directory.path", "SHRLS_UPLOAD_DIRECTORY")
 
-	viper.BindEnv("state.bolt.path")
+	viper.BindEnv("state.bolt.path", "SHRLS_DB_PATH")
 
 	viper.BindEnv("state.mongodb.connection_string", "SHRLS_MONGO_CONNECTION_STRING")
 	//viper.SetDefault("state.mongodb.connection_string", "mongodb://mongo:password@localhost:27017")

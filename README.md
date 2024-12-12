@@ -4,15 +4,22 @@ A simple to deploy URL shortener written in Go.
 
 ## Features
 
-  - Admin web interface
-  - Single binary contains server and administration cli
-  - Any short url becomes a QR code by appending `.qr` to the end of it.
+  - [x] Admin web interface
+  - [-] Single binary contains server and administration cli
+  - [x] Any short url becomes a QR code by appending `.qr` to the end of it.
     - Text rendered QR codes available for terminals
-  - Curl-able API
-  - Automatically strip tracking url parameters from configurable hosts
-  - Includes a convenient, feature rich bookmarklet
+  - [x] File Uploads
+  - [ ] Curl-able API
+  - [ ] Automatically strip tracking url parameters from configurable hosts
+  - [-] Includes a convenient, feature rich bookmarklet
     - Shorten a URL or save a screenshot of the entire webpage.
-  - File Uploads
+
+## Deploying
+
+Shrls is provided as a docker container to deploy to wherever you would like.
+Docker-compose is recommended for new users and a sample
+[docker-compose](./docker-compose.yaml) file has been provided within the
+repository.
 
 ## Configuring
 
@@ -22,39 +29,78 @@ Shrls can currently be configured via environment variables and/or a config file
   - $HOME/.config/shrls/config.yaml
   - ./config.yaml
 
-The options which can be configured are listed below. You can also configure any of these with the `shrls config` command.
+The current configuration can be viewed by running `shrls config`. This is a convenient way to get started with a configuration.
 
-### base_url
+By default the configuration looks like this
 
-The base url of the url shortener service.
+```yaml
+host: localhost
+port: 3000
+default_redirect: /admin
+state:
+  bolt:
+    path: shrls.db
+uploads:
+  directory:
+    path: uploads
+```
 
-### mongo_uri
+If you would like to instead use MongoDB, specify the connection string as en environment variable.
+```sh
+export SHRLS_MONGO_CONNECTION_STRING="mongodb://username:password@localhost:27017"
+```
 
-*Required*
+This can also be saved within the configuration file as
 
-A database connection string to MongoDB.
+```yaml
+state:
+  mongodb:
+    connection_string: "mongodb://username:password@localhost:27017"
+```
 
-Defaults to `mongodb://mongo:password@localhost:27017`
+Additional environment variables and their descriptions are found below
 
-### admin_username
+### SHRLS_HOST
 
-If set, requires basic auth to access the web admin interface
+The public facing hostname of the url shortener service.
 
-### admin_password
+Used for generating QR codes on the server
 
-If set, requires basic auth to access the web admin interface
+### SHRLS_PORT
 
-### port
-
-The HTTP port of the Shrls service.
+The port which the url shortener service should run on.
 
 Defaults to `3000`
 
-### default_redirect
+### SHRLS_MONGO_CONNECTION_STRING
+
+A database connection string to MongoDB.
+
+### SHRLS_DB_PATH
+
+If using the built-in database, a path to where the database should be saved.
+
+Defaults to `shrls.db`
+
+### SHRLS_USERNAME
+
+If set, requires basic auth to access the web admin interface
+
+### SHRLS_PASSWORD
+
+If set, requires basic auth to access the web admin interface
+
+### SHRLS_DEFAULT_REDIRECT
 
 If a short url does not exist, redirect the user to the configured default_redirect. Otherwise 404.
 
-### upload_directory
+### SHRLS_DEFAULT_REDIRECT_SSL
+
+If the default redirect and QR codes should use `https` in their redirects, set this value to `true`
+
+Defaults to `false`
+
+### SHRLS_UPLOAD_DIRECTORY
 
 Path which contains files uploaded to Shrls.
 

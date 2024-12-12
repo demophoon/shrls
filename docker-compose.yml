@@ -1,24 +1,22 @@
-version: '3'
 services:
-  #shrls:
-  #  build:
-  #    context: .
-  #  environment:
-  #    SHRLS_BASE_URL: "http://localhost:8000/" # (Optional) Used for bookmarklet
-  #    SHRLS_PORT: 8000
-  #    DEFAULT_REDIRECT: "https://www.brittg.com/"
-  #    UPLOAD_DIRECTORY: "/uploads"
-  #    MONGO_URI: "mongodb://mongo:example@mongodb:27017"
-  #    SHRLS_USERNAME: "shrls"
-  #    SHRLS_PASSWORD: "example"
-  #  ports:
-  #    - "8000:8000"
-  #  volumes:
-  #    - "${PWD}/uploads:/uploads"
-  mongodb:
-    image: mongo
+  shrls:
+    image: ghcr.io/demophoon/shrls:latest
     environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: password
+      SHRLS_DEFAULT_REDIRECT: "https://www.brittg.com/"
+      SHRLS_UPLOAD_DIRECTORY: "/uploads"
+      SHRLS_USERNAME: "shrls"
+      SHRLS_PASSWORD: "example"
+      # Uncomment to use mongodb backend
+      # SHRLS_MONGO_CONNECTION_STRING: "mongodb://mongo:password@mongodb:27017"
     ports:
-      - '27017:27017'
+      - "3000:3000"
+    volumes:
+      - "${PWD}/config:/config"
+      - "${PWD}/uploads:/uploads"
+
+  # Uncomment to use mongodb
+  #mongodb:
+  #  image: mongo
+  #  environment:
+  #    MONGO_INITDB_ROOT_USERNAME: mongo
+  #    MONGO_INITDB_ROOT_PASSWORD: password
