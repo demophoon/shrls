@@ -209,18 +209,20 @@ func New(config *config.Config) ShrlsService {
 	if config.StateBackend == nil {
 		log.Fatal("State backend is undefined")
 	}
+	var state server.ServerState
 	if config.StateBackend.Bolt != nil {
-		state := boltstate.New(*config)
+		state = boltstate.New(*config)
 		s.SetState(state)
 	}
 	if config.StateBackend.Mongo != nil {
-		state := mongostate.New(*config)
+		state = mongostate.New(*config)
 		s.SetState(state)
 	}
 
 	// Set Server Implementation
 	log.Debug("Adding server implementation")
 	impl := service.New(config)
+	impl.SetState(state)
 	impl.SetStorage(storage)
 	s.SetServer(impl)
 
