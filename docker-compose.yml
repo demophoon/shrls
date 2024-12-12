@@ -1,15 +1,18 @@
 services:
   shrls:
+    # Uncomment to build from source
+    #build:
+    #  context: .
     image: ghcr.io/demophoon/shrls:latest
     environment:
       SHRLS_DEFAULT_REDIRECT: "https://www.brittg.com/"
       SHRLS_UPLOAD_DIRECTORY: "/uploads"
-      SHRLS_USERNAME: "shrls"
-      SHRLS_PASSWORD: "example"
+      SHRLS_USERNAME: "admin"
+      SHRLS_PASSWORD: "changeMe!"
       # Uncomment to use mongodb backend
       # SHRLS_MONGO_CONNECTION_STRING: "mongodb://mongo:password@mongodb:27017"
     ports:
-      - "3000:3000"
+      - "5000:3000"
     volumes:
       - "${PWD}/config:/config"
       - "${PWD}/uploads:/uploads"
