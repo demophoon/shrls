@@ -73,6 +73,14 @@ func New() *Config {
 		}
 	}
 
+	if config.StateBackend == nil {
+		config.StateBackend = &StateBackend{
+			Bolt: &BoltStateBackendOptions{
+				Path: "shrls.db",
+			},
+		}
+	}
+
 	return &config
 }
 
