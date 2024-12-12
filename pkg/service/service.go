@@ -210,6 +210,9 @@ func New(config *config.Config) ShrlsService {
 		log.Fatal("State backend is undefined")
 	}
 	var state server.ServerState
+	if config.StateBackend.Bolt != nil && config.StateBackend.Mongo != nil {
+		log.Fatal("Ambiguous state backend defined. Please use a single state backend.")
+	}
 	if config.StateBackend.Bolt != nil {
 		state = boltstate.New(*config)
 		s.SetState(state)
