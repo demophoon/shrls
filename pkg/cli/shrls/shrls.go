@@ -14,6 +14,7 @@ import (
 
 func init() {
 	ShrlsCmd.AddCommand(shrlsCreateCmd)
+	ShrlsCmd.AddCommand(shrlsListCmd)
 }
 
 var ShrlsCmd = &cobra.Command{
@@ -52,5 +53,29 @@ var shrlsCreateCmd = &cobra.Command{
 		}
 
 		log.Info("Url shortened", fmt.Sprintf("Shrl: %#v", shrl))
+	},
+}
+
+var shrlsListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List short urls",
+	Long:  `List urls from the shrls server`,
+	Run: func(cmd *cobra.Command, args []string) {
+		ctx := context.Background()
+		defer ctx.Done()
+
+		config := config.New()
+		s := service.New(config)
+		client := s.NewClient()
+
+		shrls, _, err := client.ListShrls(ctx, nil, nil, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, shrl := range shrls {
+			log.Info("Urls", fmt.Sprintf("%#v", shrl.Stub))
+		}
+
 	},
 }
