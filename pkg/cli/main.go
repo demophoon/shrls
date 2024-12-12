@@ -42,9 +42,13 @@ func init() {
 	rootCmd.PersistentFlags().Bool("debug", false, "Output debug logging")
 	viper.BindPFlag("log_debug", rootCmd.PersistentFlags().Lookup("debug"))
 
+	viper.BindEnv("experimental", "SHRLS_EXPERIMENTAL")
+
 	rootCmd.AddCommand(versionCmd)
-	rootCmd.AddCommand(helpCmd)
-	rootCmd.AddCommand(shrls.ShrlsCmd)
 	rootCmd.AddCommand(serve.ServeCmd)
 	rootCmd.AddCommand(configcmd.ConfigCmd)
+
+	if viper.GetBool("experimental") {
+		rootCmd.AddCommand(shrls.ShrlsCmd)
+	}
 }

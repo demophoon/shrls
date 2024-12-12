@@ -12,11 +12,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	ShrlsCmd.AddCommand(shrlsCreateCmd)
-	ShrlsCmd.AddCommand(shrlsListCmd)
-}
-
 var ShrlsCmd = &cobra.Command{
 	Use:   "shrl",
 	Short: "Manage shortened urls via command line",
@@ -78,4 +73,9 @@ var shrlsListCmd = &cobra.Command{
 		}
 
 	},
+}
+
+func init() {
+	ShrlsCmd.AddCommand(shrlsCreateCmd)
+	ShrlsCmd.AddCommand(shrlsListCmd)
 }
