@@ -17,7 +17,8 @@ var rootCmd = &cobra.Command{
 	Short: "Shrls is a easy to use url shortener",
 	Long:  `An easy to use, feature rich url shortner built in Go.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.HelpFunc()
+		versionCmd.Run(cmd, nil)
+		cmd.Help()
 	},
 }
 

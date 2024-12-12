@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -11,6 +9,7 @@ var helpCmd = &cobra.Command{
 	Short: "Print the help for Shrls",
 	Long:  `Print help text for using Shrls`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Shrls v0.1.0")
+		versionCmd.Run(cmd, nil)
+		cmd.Help()
 	},
 }
