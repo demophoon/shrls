@@ -7,6 +7,7 @@ import (
 	"github.com/demophoon/shrls/pkg/config"
 
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 type DirectoryStorage struct {
