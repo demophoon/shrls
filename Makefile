@@ -11,11 +11,11 @@ ui: proto
 
 .PHONY: bin
 bin: ui
-	go build -o shrls -ldflags="-X gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli.version=${version}-dev" cmd/shrls/main.go
+	go build -o shrls -ldflags="-X github.com/demophoon/shrls/pkg/cli.version=${version}-dev" cmd/shrls/main.go
 
 .PHONY: dist
 dist: ui
-	CGO_ENABLED=0 GOOS=linux go build -o shrls -a --installsuffix cgo -ldflags="-s -w -X gitlab.cascadia.demophoon.com/demophoon/go-shrls/pkg/cli.version=${version}" cmd/shrls/main.go
+	CGO_ENABLED=0 GOOS=linux go build -o shrls -a --installsuffix cgo -ldflags="-s -w -X github.com/demophoon/shrls/pkg/cli.version=${version}" cmd/shrls/main.go
 
 .PHONY: docker
 docker:

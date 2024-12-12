@@ -10,4 +10,9 @@ RUN direnv allow /build && \
 # Final Artifact
 FROM scratch
 COPY --from=builder /build/shrls /shrls
-CMD ["/shrls", "serve", "--trace"]
+WORKDIR /config
+
+ENTRYPOINT "/shrls"
+CMD ["serve"]
+
+EXPOSE 3000
