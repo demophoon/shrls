@@ -32,7 +32,12 @@ docker:
 		--label "org.opencontainers.image.description=Simple and small url shortener" \
 		--label "org.opencontainers.image.licenses=Apache-2.0" \
 		-t ghcr.io/demophoon/shrls:${version}
+		-t ghcr.io/demophoon/shrls:latest
 
 .PHONY: publish
 publish:
 	docker push ghcr.io/demophoon/shrls:${version}
+
+.PHONY: publish-latest
+publish-latest:
+	docker push ghcr.io/demophoon/shrls:latest
