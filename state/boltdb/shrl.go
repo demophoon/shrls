@@ -201,7 +201,23 @@ func (s *BoltDBState) CreateShrl(ctx context.Context, shrl *pb.ShortURL) (*pb.Sh
 func (s *BoltDBState) ListShrls(ctx context.Context, search *string, count *int64, page *int64) ([]*pb.ShortURL, int64, error) {
 	var final []*pb.ShortURL
 	var urls []*URL
-	err := s.db.AllByIndex("CreatedAt", &urls)
+
+	limit := 50
+	skip := 0
+	if count != nil {
+		limit = int(*count)
+	}
+	if limit > 100 {
+		limit = 100
+	}
+	if limit < 10 {
+		limit = 10
+	}
+	if page != nil {
+		skip = limit * int(*page)
+	}
+
+	err := s.db.AllByIndex("CreatedAt", &urls, storm.Limit(limit), storm.Skip(skip), storm.Reverse())
 	if err != nil {
 		return final, -1, err
 	}
