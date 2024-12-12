@@ -7,8 +7,9 @@ import (
 	configcmd "github.com/demophoon/shrls/pkg/cli/config"
 	"github.com/demophoon/shrls/pkg/cli/serve"
 	"github.com/demophoon/shrls/pkg/cli/shrls"
-	"github.com/demophoon/shrls/pkg/config"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var rootCmd = &cobra.Command{
@@ -21,6 +22,9 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
+	log.SetFormatter(&log.TextFormatter{})
+	log.SetLevel(log.InfoLevel)
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -29,12 +33,13 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().String("config", "", "Path to config.yaml file")
-	rootCmd.PersistentFlags().Bool("debug", false, "Output debug logging")
-	rootCmd.PersistentFlags().Bool("trace", false, "Output trace logging")
+	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 
-	cobra.OnInitialize(func() {
-		config.InitConfig(rootCmd)
-	})
+	rootCmd.PersistentFlags().Bool("trace", false, "Output trace logging")
+	viper.BindPFlag("log_trace", rootCmd.PersistentFlags().Lookup("trace"))
+
+	rootCmd.PersistentFlags().Bool("debug", false, "Output debug logging")
+	viper.BindPFlag("log_debug", rootCmd.PersistentFlags().Lookup("debug"))
 
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(helpCmd)

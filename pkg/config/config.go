@@ -1,70 +1,93 @@
 package config
 
 import (
+	"strings"
+
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-type StateBackend int64
-type UploadBackend int64
-type AuthBackend int64
+type DirectoryUploadBackendOptions struct {
+	Path string `yaml:"path"`
+}
 
-const (
-	MongoDB StateBackend = iota
-	// TODO: BoltDB
-	// TODO: InMemory
-)
+type MongoStateBackendOptions struct {
+	ConnectionString string `mapstructure:"connection_string" yaml:"connection_string"`
+}
 
-const (
-	Directory UploadBackend = iota
-	// TODO: S3
-)
+type BoltStateBackendOptions struct {
+	Path string `mapstructure:"path" yaml:"path"`
+}
 
-const (
-	None AuthBackend = iota
-	Basic
-	// TODO: OAuth
-)
+type StateBackend struct {
+	Mongo *MongoStateBackendOptions `mapstructure:"mongodb" yaml:"mongodb,omitempty"`
+	Bolt  *BoltStateBackendOptions  `mapstructure:"bolt" yaml:"bolt,omitempty"`
+}
+
+type StateBackendOptions interface {
+	MongoStateBackendOptions | BoltStateBackendOptions
+}
+
+type UploadBackend struct {
+	Directory *DirectoryUploadBackendOptions `mapstructure:"directory" yaml:"directory,omitempty"`
+}
+
+type BasicAuthBackendOptions struct {
+	Username string `mapstructure:"username" yaml:"username"`
+	Password string `mapstructure:"password" yaml:"password"`
+}
+
+type AuthBackend struct {
+	Basic *BasicAuthBackendOptions `yaml:"basic,omitempty"`
+}
 
 type Config struct {
-	BaseURL          string `mapstructure:"base_url"`
-	Port             int
-	DefaultRedirect  string `mapstructure:"default_redirect"`
-	TerminalRedirect bool
+	Host               string `mapstructure:"host" yaml:"host,omitempty"`
+	Port               int    `yaml:"port"`
+	DefaultRedirect    string `mapstructure:"default_redirect" yaml:"default_redirect,omitempty"`
+	DefaultRedirectSsl bool   `mapstructure:"default_redirect_ssl" yaml:"default_redirect_ssl,omitempty"`
+	TerminalRedirect   bool   `mapstructure:"terminal_redirect" yaml:"-,omitempty"`
 
 	// TODO: Initialize backends outside of global config object
 	// State
-	StateBackend          StateBackend
-	MongoConnectionString string `mapstructure:"mongo_uri"`
-
-	BoltPath string `mapstructure:"bolt_path"`
+	StateBackend *StateBackend `mapstructure:"state" yaml:"state"`
 
 	// Uploads
-	UploadBackend   UploadBackend
-	UploadDirectory string `mapstructure:"upload_directory"`
+	UploadBackend *UploadBackend `mapstructure:"uploads" yaml:"uploads"`
 
 	// Auth
-	AuthBackend   AuthBackend
-	AdminUsername string `mapstructure:"admin_username"`
-	AdminPassword string `mapstructure:"admin_password"`
+	AuthBackend *AuthBackend `mapstructure:"auth" yaml:"auth,omitempty"`
 }
 
 func New() *Config {
-	config := &Config{}
+	InitConfig()
+
+	config := Config{}
 	config.getConfig()
-	return config
+
+	if config.UploadBackend == nil {
+		config.UploadBackend = &UploadBackend{
+			Directory: &DirectoryUploadBackendOptions{
+				Path: "uploads",
+			},
+		}
+	}
+
+	return &config
 }
 
-func InitConfig(rootCmd *cobra.Command) {
+func InitConfig() {
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.SetEnvPrefix("shrls")
-	bindConfig(rootCmd)
+	bindConfig()
 
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetLevel(log.ErrorLevel)
-	if viper.GetBool("trace") {
+	if viper.GetBool("log_json") {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
+
+	if viper.GetBool("log_trace") {
 		log.SetLevel(log.TraceLevel)
-	} else if viper.GetBool("debug") {
+	} else if viper.GetBool("log_debug") {
 		log.SetLevel(log.DebugLevel)
 	}
 
@@ -85,37 +108,30 @@ func InitConfig(rootCmd *cobra.Command) {
 	}
 }
 
-func bindConfig(rootCmd *cobra.Command) {
-	viper.BindEnv("base_url")
+func bindConfig() {
+	viper.BindEnv("host")
+	viper.SetDefault("host", "localhost")
 
 	viper.BindEnv("port")
 	viper.SetDefault("port", 3000)
 
 	viper.BindEnv("default_redirect")
+	viper.SetDefault("default_redirect", "/admin")
 
-	viper.BindEnv("upload_directory")
-	viper.SetDefault("upload_directory", "./uploads")
+	viper.BindEnv("default_redirect_ssl")
+	viper.SetDefault("default_redirect_ssl", false)
 
-	viper.BindEnv("state_backend")
-	viper.SetDefault("state_backend", "mongo")
+	viper.BindEnv("uploads.directory.path", "SHRLS_UPLOAD_DIRECTORY")
 
-	viper.BindEnv("mongo_uri")
-	viper.SetDefault("mongo_uri", "mongodb://mongo:password@localhost:27017")
+	viper.BindEnv("state.bolt.path")
 
-	viper.BindEnv("bolt_path")
-	viper.SetDefault("bolt_path", "shrls.db")
+	viper.BindEnv("state.mongodb.connection_string", "SHRLS_MONGO_CONNECTION_STRING")
+	//viper.SetDefault("state.mongodb.connection_string", "mongodb://mongo:password@localhost:27017")
 
-	viper.BindEnv("admin_username")
-	viper.SetDefault("admin_username", "")
-
-	viper.BindEnv("admin_password")
-	viper.SetDefault("admin_password", "")
+	viper.BindEnv("auth.basic.username", "SHRLS_USERNAME")
+	viper.BindEnv("auth.basic.password", "SHRLS_PASSWORD")
 
 	viper.SetDefault("terminal_redirect", false)
-
-	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
-	viper.BindPFlag("trace", rootCmd.PersistentFlags().Lookup("trace"))
-	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 }
 
 func (c *Config) getConfig() {

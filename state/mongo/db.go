@@ -29,11 +29,15 @@ func (s *MongoDBState) init(conn string) error {
 	return nil
 }
 
-func New(c *config.Config) *MongoDBState {
-	log.Printf(fmt.Sprintf("Config db: %v", c))
+func New(c config.Config) *MongoDBState {
+	log.Debugf(fmt.Sprintf("Config db: %v", c))
 	state := &MongoDBState{}
-	if err := state.init(c.MongoConnectionString); err != nil {
-		log.Fatal("Couldn't initialize MongoDBState. %s", err)
+	if c.StateBackend.Mongo == nil {
+		log.Fatal("Couldn't initialize MongoDBState backend. MongoConnectionString not defined.")
+	}
+
+	if err := state.init(c.StateBackend.Mongo.ConnectionString); err != nil {
+		log.Fatal("Couldn't initialize MongoDBState backend. %s", err)
 	}
 	return state
 }

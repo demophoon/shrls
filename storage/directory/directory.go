@@ -20,9 +20,6 @@ func (d *DirectoryStorage) CreateFile(file []byte) (string, error) {
 	}
 
 	key := uuid.New()
-	if err != nil {
-		return "", err
-	}
 	filepath := path.Join(d.upload_location, key.String())
 
 	err = os.WriteFile(filepath, file, os.ModePerm)
@@ -48,7 +45,10 @@ func (d *DirectoryStorage) DeleteFile(key string) error {
 }
 
 func New(c *config.Config) *DirectoryStorage {
+	if c.UploadBackend.Directory == nil {
+		log.Fatal("Couldn't initialize upload backend. Path not defined.")
+	}
 	storage := &DirectoryStorage{}
-	storage.upload_location = c.UploadDirectory
+	storage.upload_location = c.UploadBackend.Directory.Path
 	return storage
 }
