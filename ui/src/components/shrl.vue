@@ -2,7 +2,8 @@
     <div class="list-item">
         <div class="list-item-image">
             <span class="icon" v-if="shrl.type == ShrlType.shortenedURL">
-                <i class="fas fa-link"></i>
+                <img class="fas" v-if="shrl.content.url.favicon" :src="faviconHelper(shrl)"></img>
+                <i class="fas fa-link" v-else></i>
             </span>
             <span class="icon" v-if="shrl.type == ShrlType.textSnippet">
                 <i class="fas fa-code"></i>
@@ -132,6 +133,9 @@ export default {
         },
         copyQR: function() {
             copy(document.location.protocol + "//" + document.location.host + "/" + this.shrl.stub + ".qr")
+        },
+        faviconHelper: function(url) {
+            return "data:image/png;base64, " + url.content.url.favicon;
         },
     }
 }

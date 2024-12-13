@@ -33,6 +33,7 @@ type URL struct {
 	Views          int
 	Tags           []string
 	Type           ShrlType
+	Favicon        []byte
 }
 
 func (s *BoltDBState) urlsToPbShrls(urls []*URL) []*pb.ShortURL {
@@ -63,6 +64,7 @@ func (s *BoltDBState) pbShrlToUrl(in *pb.ShortURL) *URL {
 	case *pb.ExpandedURL_Url:
 		out.Type = ShortenedUrl
 		out.Location = in.Content.GetUrl().GetUrl()
+		out.Favicon = in.Content.GetUrl().Favicon
 	case *pb.ExpandedURL_File:
 		out.Type = UploadedFile
 		out.UploadLocation = in.Content.GetFile().GetRef()
@@ -88,7 +90,7 @@ func (s *BoltDBState) urlToPbShrl(in *URL) *pb.ShortURL {
 			Content: &pb.ExpandedURL_Url{
 				Url: &pb.Redirect{
 					Url:     in.Location,
-					Favicon: []byte{},
+					Favicon: in.Favicon,
 				},
 			},
 		}

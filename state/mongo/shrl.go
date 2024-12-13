@@ -39,6 +39,7 @@ type URL struct {
 	Views          int                `bson:"views" json:"views"`
 	Tags           []string           `bson:"tags" json:"tags"`
 	Type           ShrlType           `bson:"type" json:"type"`
+	Favicon        []byte             `bson:"favicon" json:"favicon"`
 }
 
 func (s *MongoDBState) urlsToPbShrls(urls []*URL) []*pb.ShortURL {
@@ -68,7 +69,7 @@ func (s *MongoDBState) urlToPbShrl(u *URL) *pb.ShortURL {
 			Content: &pb.ExpandedURL_Url{
 				Url: &pb.Redirect{
 					Url:     u.Location,
-					Favicon: []byte{},
+					Favicon: u.Favicon,
 				},
 			},
 		}
@@ -124,6 +125,7 @@ func (s *MongoDBState) pbShrlToUrl(u *pb.ShortURL) *URL {
 	case *pb.ExpandedURL_Url:
 		url.Type = ShortenedUrl
 		url.Location = u.Content.GetUrl().Url
+		url.Favicon = u.Content.GetUrl().Favicon
 	case *pb.ExpandedURL_File:
 		url.Type = UploadedFile
 		url.UploadLocation = u.Content.GetFile().GetRef()
