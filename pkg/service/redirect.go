@@ -10,6 +10,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func isUA(r *http.Request, agent string) bool {
+	ua := strings.ToLower(r.UserAgent())
+	return strings.HasPrefix(ua, strings.ToLower(agent))
+}
+
+func isTerminal(r *http.Request) bool {
+	return isUA(r, "curl") || isUA(r, "wget")
+}
+
 func (s *ShrlsService) Redirect(w http.ResponseWriter, r *http.Request) {
 	shrl := r.URL.Path
 	shrl = strings.TrimPrefix(shrl, "/")
@@ -30,6 +39,10 @@ func (s *ShrlsService) Redirect(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	redirect, err := s.NewClient().GetShrl(ctx, ref)
 	if err != nil {
+		if isTerminal(r) && s.config.DefaultTerminalString != "" {
+			w.Write([]byte(s.config.DefaultTerminalString))
+			return
+		}
 		if s.config.DefaultRedirect != "" {
 			http.Redirect(w, r, s.config.DefaultRedirect, http.StatusTemporaryRedirect)
 			log.Error("Unable to resolve Shrl. ", ref)

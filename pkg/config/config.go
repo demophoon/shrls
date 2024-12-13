@@ -46,7 +46,9 @@ type Config struct {
 	Port               int    `yaml:"port"`
 	DefaultRedirect    string `mapstructure:"default_redirect" yaml:"default_redirect,omitempty"`
 	DefaultRedirectSsl bool   `mapstructure:"default_redirect_ssl" yaml:"default_redirect_ssl,omitempty"`
-	TerminalRedirect   bool   `mapstructure:"terminal_redirect" yaml:"-,omitempty"`
+
+	// Curl-able homepage
+	DefaultTerminalString string `mapstructure:"default_terminal_string" yaml:"default_terminal_string"`
 
 	// TODO: Initialize backends outside of global config object
 	// State
@@ -134,12 +136,9 @@ func bindConfig() {
 	viper.BindEnv("state.bolt.path", "SHRLS_DB_PATH")
 
 	viper.BindEnv("state.mongodb.connection_string", "SHRLS_MONGO_CONNECTION_STRING")
-	//viper.SetDefault("state.mongodb.connection_string", "mongodb://mongo:password@localhost:27017")
 
 	viper.BindEnv("auth.basic.username", "SHRLS_USERNAME")
 	viper.BindEnv("auth.basic.password", "SHRLS_PASSWORD")
-
-	viper.SetDefault("terminal_redirect", false)
 }
 
 func (c *Config) getConfig() {
