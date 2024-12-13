@@ -7,10 +7,10 @@ A simple to deploy URL shortener written in Go.
   - [x] Admin web interface
   - [-] Single binary contains server and administration cli
   - [x] Any short url becomes a QR code by appending `.qr` to the end of it.
-    - Text rendered QR codes available for terminals
+    - [x] Text rendered QR codes available for terminals
   - [x] File Uploads
   - [ ] Curl-able API
-  - [ ] Automatically strip tracking url parameters from configurable hosts
+  - [x] Automatically strip tracking url parameters from configurable hosts
   - [-] Includes a convenient, feature rich bookmarklet
     - Shorten a URL or save a screenshot of the entire webpage.
 
