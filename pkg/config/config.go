@@ -59,6 +59,10 @@ type Config struct {
 
 	// Auth
 	AuthBackend *AuthBackend `mapstructure:"auth" yaml:"auth,omitempty"`
+
+	// Tracker Removal
+	RemoveQueryParametersMatchingHosts *[]string `mapstructure:"remove_query_parameters_matching_hosts" yaml:"remove_query_parameters_matching_hosts,omitempty"`
+	ResolveURLMatchingHosts            *[]string `mapstructure:"resolve_urls_matching_hosts" yaml:"resolve_urls_matching_hosts,omitempty"`
 }
 
 func New() *Config {

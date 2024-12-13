@@ -8,10 +8,13 @@ import (
 type Server struct {
 	state   server.ServerState
 	storage server.ServerStorage
+	config  *config.Config
 }
 
 func New(c *config.Config) *Server {
-	server := &Server{}
+	server := &Server{
+		config: c,
+	}
 	return server
 }
 
