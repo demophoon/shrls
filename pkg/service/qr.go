@@ -8,7 +8,7 @@ import (
 	qrcode "github.com/skip2/go-qrcode"
 )
 
-func (s *ShrlsService) ToQR(shrl *pb.ShortURL) ([]byte, error) {
+func (s *ShrlsService) toEncodedQR(shrl *pb.ShortURL) (*qrcode.QRCode, error) {
 	url_scheme := "http"
 	if s.config.DefaultRedirectSsl {
 		url_scheme = "https"
@@ -21,12 +21,28 @@ func (s *ShrlsService) ToQR(shrl *pb.ShortURL) ([]byte, error) {
 
 	location := u.String()
 
-	var result []byte
-	result, err := qrcode.Encode(location, qrcode.Medium, 256)
-
+	qr, err := qrcode.New(location, qrcode.Medium)
 	if err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return qr, nil
+}
+
+func (s *ShrlsService) ToQR(shrl *pb.ShortURL) ([]byte, error) {
+	qr, err := s.toEncodedQR(shrl)
+	if err != nil {
+		return nil, err
+	}
+
+	return qr.PNG(256)
+}
+
+func (s *ShrlsService) ToTextQR(shrl *pb.ShortURL) ([]byte, error) {
+	qr, err := s.toEncodedQR(shrl)
+	if err != nil {
+		return nil, err
+	}
+
+	return []byte(qr.ToSmallString(false)), nil
 }

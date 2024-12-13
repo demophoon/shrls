@@ -54,7 +54,13 @@ func (s *ShrlsService) Redirect(w http.ResponseWriter, r *http.Request) {
 
 	switch ext {
 	case "qr", "qrcode":
-		qr, err := s.ToQR(redirect)
+		var qr []byte
+		var err error
+		if isTerminal(r) {
+			qr, err = s.ToTextQR(redirect)
+		} else {
+			qr, err = s.ToQR(redirect)
+		}
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Unable to convert to QR: %s", err), http.StatusInternalServerError)
 			return
