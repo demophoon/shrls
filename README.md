@@ -18,7 +18,7 @@ A simple to deploy URL shortener written in Go.
 
 Shrls is provided as a docker container to deploy to wherever you would like.
 Docker-compose is recommended for new users and a sample
-[docker-compose](./docker-compose.yaml) file has been provided within the
+[docker-compose](./docker-compose.yml) file has been provided within the
 repository.
 
 ## Configuring
