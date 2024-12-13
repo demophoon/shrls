@@ -2,7 +2,6 @@ package mongostate
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/demophoon/shrls/pkg/config"
 
@@ -30,7 +29,6 @@ func (s *MongoDBState) init(conn string) error {
 }
 
 func New(c config.Config) *MongoDBState {
-	log.Debugf(fmt.Sprintf("Config db: %v", c))
 	state := &MongoDBState{}
 	if c.StateBackend.Mongo == nil {
 		log.Fatal("Couldn't initialize MongoDBState backend. MongoConnectionString not defined.")
