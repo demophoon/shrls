@@ -27,6 +27,7 @@ type URL struct {
 	Alias          string
 	Location       string
 	UploadLocation string
+	UploadSize     int64
 	SnippetTitle   string
 	Snippet        string
 	CreatedAt      time.Time `storm:"index"`
@@ -68,6 +69,7 @@ func (s *BoltDBState) pbShrlToUrl(in *pb.ShortURL) *URL {
 	case *pb.ExpandedURL_File:
 		out.Type = UploadedFile
 		out.UploadLocation = in.Content.GetFile().GetRef()
+		out.UploadSize = in.Content.GetFile().GetSize()
 	case *pb.ExpandedURL_Snippet:
 		out.Type = TextSnippet
 		out.Snippet = string(in.Content.GetSnippet().GetBody())
@@ -100,6 +102,7 @@ func (s *BoltDBState) urlToPbShrl(in *URL) *pb.ShortURL {
 			Content: &pb.ExpandedURL_File{
 				File: &pb.Upload{
 					Ref: in.UploadLocation,
+					Size: in.UploadSize,
 				},
 			},
 		}

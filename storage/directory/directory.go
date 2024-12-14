@@ -14,10 +14,10 @@ type DirectoryStorage struct {
 	upload_location string
 }
 
-func (d *DirectoryStorage) CreateFile(file []byte) (string, error) {
+func (d *DirectoryStorage) CreateFile(file []byte) (string, int64, error) {
 	err := os.MkdirAll(d.upload_location, os.ModePerm)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	key := uuid.New()
@@ -25,10 +25,10 @@ func (d *DirectoryStorage) CreateFile(file []byte) (string, error) {
 
 	err = os.WriteFile(filepath, file, os.ModePerm)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
-	return key.String(), nil
+	return key.String(), int64(len(file)), nil
 }
 
 func (d *DirectoryStorage) ReadFile(key string) ([]byte, error) {

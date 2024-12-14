@@ -33,6 +33,7 @@ type URL struct {
 	Alias          string             `bson:"alias" json:"alias"`
 	Location       string             `bson:"location" json:"location"`
 	UploadLocation string             `bson:"upload_location" json:"-"`
+	UploadSize     int64              `bson:"upload_size" json:"-"`
 	SnippetTitle   string             `bson:"snippet_title" json:"snippet_title,omitempty"`
 	Snippet        string             `bson:"snippet" json:"snippet,omitempty"`
 	CreatedAt      time.Time          `bson:"created_at" json:"created_at"`
@@ -79,6 +80,7 @@ func (s *MongoDBState) urlToPbShrl(u *URL) *pb.ShortURL {
 			Content: &pb.ExpandedURL_File{
 				File: &pb.Upload{
 					Ref: u.UploadLocation,
+					Size: u.UploadSize,
 				},
 			},
 		}
@@ -129,6 +131,7 @@ func (s *MongoDBState) pbShrlToUrl(u *pb.ShortURL) *URL {
 	case *pb.ExpandedURL_File:
 		url.Type = UploadedFile
 		url.UploadLocation = u.Content.GetFile().GetRef()
+		url.UploadSize = u.Content.GetFile().GetSize()
 	case *pb.ExpandedURL_Snippet:
 		url.Type = TextSnippet
 		url.Snippet = string(u.Content.GetSnippet().GetBody())

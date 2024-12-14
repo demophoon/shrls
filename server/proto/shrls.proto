@@ -129,6 +129,7 @@ message Ref {
 	message FileUpload {
 		oneof ref {
 			string id = 1;
+			int64 size = 2;
 		}
 	}
 }
@@ -169,6 +170,7 @@ message Redirect {
 // File Upload
 message Upload {
 	string ref = 1; // Reference to pass to storage backend to find uploaded file
+	int64 size = 2; // File size in bytes
 }
 
 message ExpandedURL {

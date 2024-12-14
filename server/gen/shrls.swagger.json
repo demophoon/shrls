@@ -317,6 +317,10 @@
       "properties": {
         "id": {
           "type": "string"
+        },
+        "size": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },
@@ -536,6 +540,11 @@
         "ref": {
           "type": "string",
           "title": "Reference to pass to storage backend to find uploaded file"
+        },
+        "size": {
+          "type": "string",
+          "format": "int64",
+          "title": "File size in bytes"
         }
       },
       "title": "File Upload"

@@ -8,7 +8,7 @@ import (
 
 func (s Server) PostFileUpload(ctx context.Context, req *pb.PostFileUploadRequest) (*pb.PostFileUploadResponse, error) {
 	file := req.File
-	key, err := s.storage.CreateFile(file)
+	key, _, err := s.storage.CreateFile(file)
 	if err != nil {
 		return nil, err
 	}

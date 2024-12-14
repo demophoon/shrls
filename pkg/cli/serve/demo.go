@@ -51,7 +51,7 @@ func setupDemo() {
 			},
 		},
 	})
-	ref, err := d.CreateFile([]byte("This is an example of an uploaded file"))
+	ref, size, err := d.CreateFile([]byte("This is an example of an uploaded file"))
 	if err != nil {
 		log.Errorf("Unable to upload example file: %s", err)
 	}
@@ -60,6 +60,7 @@ func setupDemo() {
 			Content: &pb.ExpandedURL_File{
 				File: &pb.Upload{
 					Ref: ref,
+					Size: size,
 				},
 			},
 		},
