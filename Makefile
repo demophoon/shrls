@@ -12,7 +12,7 @@ ui: proto
 	go generate ui/static.go
 
 .PHONY: bin
-bin: ui
+bin: proto
 	go build -o shrls -ldflags="\
 		-X github.com/demophoon/shrls/pkg/version.Version=${version}-dev \
 		-X github.com/demophoon/shrls/pkg/version.Build=${build} \
