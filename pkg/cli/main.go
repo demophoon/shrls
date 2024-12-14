@@ -50,5 +50,8 @@ func init() {
 
 	if viper.GetBool("experimental") {
 		rootCmd.AddCommand(shrls.ShrlsCmd)
+
+		serve.ServeCmd.PersistentFlags().Bool("demo", false, "Seed application with demo data")
+		viper.BindPFlag("demo", serve.ServeCmd.PersistentFlags().Lookup("demo"))
 	}
 }
