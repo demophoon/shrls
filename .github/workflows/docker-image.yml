@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - '*'
+    branches:
+      - main
+    if: "startsWith(github.ref, 'refs/tags/')"
 
 jobs:
   build:
