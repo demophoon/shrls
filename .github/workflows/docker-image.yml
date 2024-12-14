@@ -15,7 +15,7 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
     - name: Build the Docker image
-      run: make docker
+      run: make docker version={{ github.ref_name }}
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v1
       with:
@@ -24,4 +24,4 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Push Docker image
       run: |
-        make publish
+        make publish version={{ github.ref_name }}
