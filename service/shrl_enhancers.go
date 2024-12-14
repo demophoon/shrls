@@ -33,7 +33,8 @@ func (s Server) resolveRedirects(u *pb.ShortURL) {
 		loc := u.Content.GetUrl().Url
 		parsed, err := url.Parse(loc)
 		if err != nil {
-			log.Warnf("Couldn't parse url when removing query parameters from %s: %s", loc, err)
+			log.Warnf("Couldn't parse url when resolving redirects from %s: %s", loc, err)
+			return
 		}
 
 		s := *s.config.ResolveURLMatchingHosts
@@ -92,6 +93,7 @@ func (s Server) removeQueryParameters(u *pb.ShortURL) {
 		parsed, err := url.Parse(loc)
 		if err != nil {
 			log.Warnf("Couldn't parse url when removing query parameters from %s: %s", loc, err)
+			return
 		}
 
 		s := *s.config.RemoveQueryParametersMatchingHosts
