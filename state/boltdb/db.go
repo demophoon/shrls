@@ -29,3 +29,7 @@ func New(c config.Config) *BoltDBState {
 	state.db = db
 	return state
 }
+
+func (s BoltDBState) Close() {
+	s.db.Close()
+}

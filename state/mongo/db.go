@@ -39,3 +39,6 @@ func New(c config.Config) *MongoDBState {
 	}
 	return state
 }
+
+func (s MongoDBState) Close() {
+}
