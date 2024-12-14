@@ -150,6 +150,11 @@ func (s *MongoDBState) CreateShrl(ctx context.Context, url *pb.ShortURL) (*pb.Sh
 	u.CreatedAt = time.Now()
 	u.Views = 0
 	u.Alias = s.newStub()
+	if url.Stub == "" {
+		u.Alias = s.newStub()
+	} else {
+		u.Alias = url.Stub
+	}
 
 	_, err := s.collection.InsertOne(ctx, u)
 	if err != nil {

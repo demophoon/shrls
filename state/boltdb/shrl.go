@@ -190,7 +190,11 @@ func (s *BoltDBState) CreateShrl(ctx context.Context, shrl *pb.ShortURL) (*pb.Sh
 	u.ID = uuid.New()
 	u.CreatedAt = time.Now()
 	u.Views = 0
-	u.Alias = s.newStub()
+	if shrl.Stub == "" {
+		u.Alias = s.newStub()
+	} else {
+		u.Alias = shrl.Stub
+	}
 
 	err := s.db.Save(u)
 	if err != nil {
