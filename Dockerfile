@@ -7,8 +7,11 @@ WORKDIR /build
 RUN direnv allow /build && \
     direnv exec /build make dist
 
+RUN mkdir /new_tmp
+
 # Final Artifact
 FROM scratch
+COPY --from=builder /new_tmp /tmp
 COPY --from=builder /build/shrls /shrls
 WORKDIR /config
 
