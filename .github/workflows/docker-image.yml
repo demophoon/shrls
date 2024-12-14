@@ -3,10 +3,7 @@ name: Docker Image CI
 on:
   push:
     tags:
-      - '*'
-    branches:
-      - main
-    if: "startsWith(github.ref, 'refs/tags/')"
+      - 0.**
 
 jobs:
   build:
