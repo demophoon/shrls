@@ -2,7 +2,7 @@
     <footer class="footer">
     <div class="content has-text-centered">
         <p>
-            <a href="https://github.com/demophoon/go-shrls" target="_blank">
+            <a href="https://github.com/demophoon/shrls" target="_blank">
                 <strong>Shrls</strong> 
             </a>
             is coded with
