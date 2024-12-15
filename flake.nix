@@ -16,11 +16,9 @@
 
               # Backend
               buf
-              grpcurl
 
               # Frontend
-              nodejs_20
-              nodePackages.npm
+              nodejs_23
             ];
           };
         }
