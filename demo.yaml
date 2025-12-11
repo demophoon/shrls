@@ -1,0 +1,12 @@
+host: shrls-miren.brittg.com
+port: 8000
+resolve_urls_matching_hosts:
+  - shrls-miren.brittg.com
+remove_query_parameters_matching_hosts:
+  - shrls-miren.brittg.com
+default_redirect: /admin
+default_redirect_ssl: true
+default_terminal_string: |
+  You've reached the curl redirect!
+
+  I'm running with Miren!

@@ -1,34 +1,16 @@
-FROM bufbuild/buf:edge AS buf
-COPY . /build
-WORKDIR /build
-RUN buf generate
+FROM ghcr.io/demophoon/shrls:0.2.2 as shrls
 
-FROM golang:alpine AS base
-RUN apk update && apk add ca-certificates && update-ca-certificates 2>/dev/null || true
-RUN mkdir /new_tmp
-
-COPY --from=buf /build /build
-WORKDIR /build
-ENV VERSION=v0.0.0
-ENV BUILD=dev
-ENV BUILD_DATE=unknown
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o shrls \
-        -ldflags="\
-            -s -w \
-            -X github.com/demophoon/shrls/pkg/version.Version=${VERSION} \
-            -X github.com/demophoon/shrls/pkg/version.Build=${BUILD} \
-            -X github.com/demophoon/shrls/pkg/version.BuildDate=${BUILD_DATE} \
-        " ./cmd/shrls/main.go
-
-# Final Artifact
 FROM scratch
-COPY --from=base /new_tmp /tmp
-COPY --from=base /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=base /build/shrls /shrls
-WORKDIR /config
 
-ENTRYPOINT ["/shrls"]
-CMD ["serve"]
+COPY --from=shrls /shrls /app/shrls
+COPY --from=shrls /tmp /tmp
+COPY --from=shrls /etc/ssl/certs /etc/ssl/certs
 
-EXPOSE 3000
+COPY ./demo.yaml /app/config.yaml
+
+ENV SHRLS_EXPERIMENTAL=true
+
+ENTRYPOINT ["/app/shrls"]
+CMD ["serve", "--demo", "--config", "/app/config.yaml"]
+
+EXPOSE 8000
